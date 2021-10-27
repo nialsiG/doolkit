@@ -1,0 +1,30 @@
+Package: doolkit
+Title: Exploration of Dental Surface Topography
+Version: 1.0.0
+Authors@R: c(
+    person(given = "Ghislain", family = "Thiery", role = c("aut", "cre"), email = "ghislain.thiery@ntymail.com"),
+    person(given = "Vincent", family = "Lazzari", role = c("aut"), email = "vincent.lazzari@univ-poitiers.fr"),
+    person(given = "Franck", family = "Guy", role = c("aut"), email = "franck.guy@univ-poitiers.fr"))
+Description: The doolkit package provides functions to explore the topography 
+    of 3d triangle meshes. It was developed with dental surfaces in mind, but 
+    could be applied to any triangle mesh of class 'mesh3d'.
+    The package aims to group all the methods associated to dental topography
+    within the same toolkit. New methods could be included and shall be 
+    introduced in later versions of the package.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.1.0)
+RoxygenNote: 7.1.2
+Imports: 
+    ggplot2,
+    igraph,
+    Morpho,
+    rgl,
+    Rvcg,
+    sp,
+    MASS,
+    tis,
+    methods,
+    alphahull,
+    concaveman

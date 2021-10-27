@@ -1,0 +1,63 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# doolkit
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The doolkit package provides functions to explore the topography of 3d
+triangle meshes. It was developed with dental surfaces in mind, but
+could be applied to any triangle mesh of class ‘mesh3d’. The package
+aims to group all the methods associated to dental topography within the
+same toolkit. New methods could be included and shall be introduced in
+later versions of the package.
+
+## Installation
+
+You can install the released version of doolkit from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("doolkit")
+```
+
+## Example
+
+``` r
+library(doolkit)
+
+#Import surfaces
+#PLY <- Rvcg::vcgImport(choose.files(), updateNormals = TRUE, clean = TRUE, silent = TRUE) 
+PLY <- dkpongo$OES
+
+#Computation
+Area <- round(Rvcg::vcgArea(PLY), digits = 2)
+#...relief
+Gamma <- round(rfi(PLY, method = "Guy"), digits = 2)
+Rfi <- round(rfi(PLY, method = "Ungar"), digits = 2)
+Lrfi <- round(rfi(PLY, method = "Boyer"), digits = 2)
+Slope <- round(mean(slope(PLY)), digits = 2)
+#...sharpness
+ARC <- arc(PLY)
+Arc <- round(mean(ARC), digits = 3)
+Parc <- round(mean(ARC[ARC >= 0]), digits = 3)
+Narc <- round(mean(ARC[ARC < 0]), digits = 3)
+Dne <- round(dne(PLY, total = TRUE), digits = 2)
+#...complexity
+Opcr <- round(opcr(PLY)$opcr, digits = 1)
+#...shape indices
+FormFactor <- round(shape.index(PLY)$FormFactor, digits = 3)
+Elongation <- round(shape.index(PLY)$Elongation, digits = 3)
+K <- round(shape.index(PLY)$K, digits = 3)
+
+#Maps
+#...relief
+dkmap(dkpongo$OES, doolkit::elev(dkpongo$OES), col = "elev", legend.lab = "Elevation (mm)")
+dkmap(dkpongo$OES, doolkit::slope(dkpongo$OES), col.levels = 9, col = "slope", legend.lab = "Slope (degrees)", min.range = 0, max.range = 90)
+#...orientation
+dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 8, col = "orient", legend.lab = "Orientation (degrees)",legend.type = "pie", min.range = 0, max.range = 360)
+#...sharpness
+dkmap(dkpongo$OES, doolkit::arc(dkpongo$OES), col = "arc", legend.lab = "ARC", min.range = -20, max.range = 20, col.levels = 15)
+dkmap(dkpongo$OES, doolkit::dne(dkpongo$OES), col = "dne", legend.lab = "DNE", legend.type = "log")
+```
