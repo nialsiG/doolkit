@@ -178,7 +178,6 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
   if (class(y) != "numeric" | !is.vector(y)) stop("y must be a numeric vector")
   if (!is.null(alpha.faces) & !is.null(alpha.thresh)) stop("use either alpha.faces or alpha.thresh")
   if (!is.null(alpha.faces) & (class(alpha.faces) != "integer" | !is.vector(alpha.faces))) stop("alpha.faces must be a vector of integers")
-
   # Define colors
   Colrange <- col
   if (isTRUE(Colrange == "angularity")) Colrange <- c("white", "black")
@@ -224,7 +223,6 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 
   # Populate the rgl window with the map
   # ...Clear the rgl window, resize it
-  oldpar <- rgl::par3d(no.readonly = TRUE)
   rgl::clear3d()
   if (!is.null(windowRect)) rgl::par3d(windowRect = windowRect)
   else if (rgl::par3d()$viewport[3] < 800 | rgl::par3d()$viewport[4] < 600) rgl::par3d(windowRect = c(20, 20, 1020, 820))
@@ -252,6 +250,8 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
       ploty <- c(min(Levels), seq(min(Levels), max(Levels), length.out = col.levels*100))
       # ...function to make the bg
       bg.make <- function(){
+        oldpar <- graphics::par(no.readonly = TRUE)
+        on.exit(graphics::par(oldpar))
         graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0))
         graphics::plot(x = plotx, y = ploty, pch = 151, bty = "n", xaxs = "r", xaxt = "n",
                        col = c("transparent", rep(Colpalette, each = 100)),
@@ -268,6 +268,8 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
       ploty <- c(min(Levels), seq(min(Levels), max(Levels), length.out = col.levels*100))
       # ...function to make the bg
       bg.make <- function(){
+        oldpar <- graphics::par(no.readonly = TRUE)
+        on.exit(graphics::par(oldpar))
         graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0), ylog = TRUE)
         graphics::plot(x = plotx, y = ploty, pch = 151, bty = "n", xaxs = "r", xaxt = "n",
                        col = c("transparent", rep(Colpalette, each = 100)),
@@ -284,6 +286,8 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
       # ...function to make the bg
       bg.make <- function(){
         #... title
+        oldpar <- graphics::par(no.readonly = TRUE)
+        on.exit(graphics::par(oldpar))
         graphics::par(mar = c(3 + cex.sub, 3 + (3 * cex), 3 + cex.main, 0), plt = c(0.15, 0.85, 0.15, 0.85))
         graphics::plot(1, 1, col = "white", main = main, font.main = font.main, cex.main = cex.main, col.main = col.main,
                        sub = sub, font.sub = font.sub, cex.sub = cex.sub, col.sub = col.sub,
@@ -324,7 +328,6 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 
   # The final step is setting the parallax to 0:
   rgl::par3d(FOV = 0)
-  on.exit(rgl::par3d(oldpar))
 }
 
 # dkprofile----
@@ -428,12 +431,10 @@ dkorigin <- function(mesh){
 #' #possible orientations are "distal", "left", "occlusal", "mesial" and "right"
 #' @export
 dksetview <- function(orient = "occlusal"){
-  oldpar <- rgl::par3d(no.readonly = TRUE)
   if (orient == "occlusal") rgl::view3d(theta = 0, phi = 0)
   if (orient == "mesial")   rgl::view3d(theta = 180, phi = 90)
   if (orient == "left")     rgl::view3d(theta = -90, phi = 0)
   if (orient == "right")    rgl::view3d(theta = 90, phi = 0)
   if (orient == "distal")   rgl::view3d(theta = 0, phi = -90)
   rgl::par3d(FOV = 0)
-  on.exit(rgl::par3d(oldpar))
 }
