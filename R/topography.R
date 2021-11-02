@@ -15,30 +15,38 @@
 #' Warning: both options can take up a significant amount of time for large meshes.
 #' @references \href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 #' @examples
-#' delta_slope <- angularity(dkpongo$OES, ratio = FALSE)
+#' delta_slope <- angularity(dkmodel$complex, ratio = FALSE)
 #' summary(delta_slope)
 #' #angularity ratio:
-#' delta_slope <- angularity(dkpongo$OES, ratio = TRUE)
-#' summary(delta_slope)
+#' delta_slope_ratio <- angularity(dkmodel$complex, ratio = TRUE)
+#' summary(delta_slope_ratio)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, angularity(dkpongo$OES), col = "slope", legend.lab = "Angularity (°)")
+#' dkmap(dkmodel$complex, delta_slope, col = "slope",
+#' legend.lab = "Angularity (°)")
 #' #angularity ratio:
-#' dkmap(dkpongo$OES, angularity(dkpongo$OES, ratio = TRUE), col = "slope", legend.lab = "Angularity ratio")
+#' dkmap(dkmodel$complex, delta_slope_ratio, col = "slope",
+#' legend.lab = "Angularity ratio")
 #'
 #' @export
 angularity <- function(mesh, ratio = FALSE){
   # Perform various checks:
   if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (is.null(mesh$normals)) mesh$normals <- Rvcg::vcgUpdateNormals(mesh, silent = TRUE)
   # Main job
   # ...Get slope (or ratio) of the mesh
-  if (ratio == FALSE) Slope <- doolkit::slope(mesh)
-  if (ratio == TRUE) Slope <- doolkit::slope(mesh)/90
+  Normals <- mesh$normals
+  NU <- sqrt((Normals[1, ]) ^ 2 + (Normals[2, ]) ^ 2)
+  NV <- sqrt((Normals[1, ]) ^ 2 + (Normals[2, ]) ^ 2 + (Normals[3, ]) ^ 2)
+  Rad <- acos(NU / NV)
+  Deg <- 180 * (Rad) / pi
+  Slope <- 90 - Deg
+  if (ratio) Slope <- Slope / 90
   # ...replace vertex elevation by the average slope of adjacent faces
-  for (i in 1:length(mesh$vb[1,])) mesh$vb[3, i] <- mean(Slope[c(which(mesh$it[1,] == i), which(mesh$it[2,] == i), which(mesh$it[3,] == i))])
+  mesh$vb[3, ] <- Slope
   # ...Angularity is the slope (or ratio) of the new mesh
-  if (ratio == FALSE) Results <- doolkit::slope(mesh)
-  if (ratio == TRUE) Results <- doolkit::slope(mesh)/90
+  if (!ratio) Results <- doolkit::slope(mesh)
+  if (ratio) Results <- doolkit::slope(mesh)/90
   return(Results)
 }
 
@@ -57,25 +65,24 @@ angularity <- function(mesh, ratio = FALSE){
 #' of the total mesh object. As a result, ARC is a scale-free estimate of surface curvature. It can
 #' be used to estimate the sharpness of a mesh.
 #' @examples
-#' pongo_curvature <- arc(dkpongo$OES)
-#' summary(pongo_curvature)
+#' curvature <- arc(dkmodel$complex)
+#' summary(curvature)
 #'
 #' #There is a default truncature of extreme values below 1% or above 99%.
 #' #Without truncature:
-#' pongo_curvature <- arc(dkpongo$OES, range = c(0, 1))
-#' summary(pongo_curvature)
+#' curvature <- arc(dkmodel$complex, range = c(0, 1))
+#' summary(curvature)
 #'
 #' #mean positive ARC:
-#' parc <- mean(pongo_curvature[pongo_curvature >= 0])
+#' parc <- mean(curvature[curvature >= 0])
 #' #mean negative ARC:
-#' narc <- mean(pongo_curvature[pongo_curvature < 0])
+#' narc <- mean(curvature[curvature < 0])
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, arc(dkpongo$OES), col = "arc",
+#' dkmap(dkmodel$complex, curvature, col = "arc",
 #' min.range = -20, max.range = 20)
 #' #absolute truncature of the values above 20 or below -20:
-#' dkmap(dkpongo$OES, arc(dkpongo$OES, range = c(-20, 20)), col = "arc",
-#' min.range = -20, max.range = 20)
+#' dkmap(dkmodel$complex, curvature, col = "arc", min.range = -20, max.range = 20)
 #' @export
 arc <- function (mesh, range = c(0.01, 0.99)){
   # Perform various checks:
@@ -105,10 +112,7 @@ arc <- function (mesh, range = c(0.01, 0.99)){
 #' @param mesh object of class mesh3d
 #' @param method the method used to compute the hull of the 2d projection, either
 #' 'convex' (see \code{\link[grDevices]{chull}}),
-#' 'concave' (see \code{\link[concaveman]{concaveman}})
-#' or 'alpha' (see \code{\link[alphahull]{ahull}}). The default method is 'concave'.
-#' @param alpha the value of alpha, between 0 and 1; see \code{\link[alphahull]{ahull}}.
-#' Only used if method = 'alpha'.
+#' or 'concave' (see \code{\link[concaveman]{concaveman}}). The default method is 'concave'.
 #' @return A single 2D surface area value, corresponding to the footprint of the mesh.
 #' @seealso \code{\link{rfi}}
 #' @examples
@@ -119,41 +123,28 @@ arc <- function (mesh, range = c(0.01, 0.99)){
 #' area2d(dkmodel$flat)
 #'
 #' #Graphical rendering of convex hull
-#' x <- dkpongo$OES
+#' x <- dkmodel$cusp
 #' FootprintVerts <- t(x$vb[1:2, ])
 #' Hull <- grDevices::chull(x = FootprintVerts[, 1], y = FootprintVerts[, 2])
 #' plot(x$vb[1, ], x$vb[2, ], xlab = "x", ylab = "y")
 #' points(x$vb[1, Hull], x$vb[2, Hull], col = "orange1")
 #'
 #' #Graphical rendering of concave hull
-#' x <- dkpongo$OES
+#' x <- dkmodel$cusp
 #' FootprintVerts <- t(x$vb[1:2, ])
 #' FootprintVerts[, 1] <- FootprintVerts[, 1] - min(FootprintVerts[, 1])
 #' FootprintVerts[, 2] <- FootprintVerts[, 2] - min(FootprintVerts[, 2])
 #' Hull <- concaveman::concaveman(points = FootprintVerts)
 #' plot(x$vb[1, ] - min(x$vb[1, ]), x$vb[2, ] - min(x$vb[2, ]), xlab = "x", ylab = "y")
 #' points(Hull, col = "green1")
-#'
-#' #Graphical rendering of alpha hull for alpha = 0.1
-#' x <- dkpongo$OES
-#' FootprintVerts <- t(x$vb[1:2, ])
-#' Hull <- alphahull::ahull(x = FootprintVerts[, 1], y = FootprintVerts[, 2], alpha = 0.1)
-#' plot(x$vb[1, ], x$vb[2, ], xlab = "x", ylab = "y")
-#' points(x$vb[1, Hull$ashape.obj$edges[, 1:2]], x$vb[2, Hull$ashape.obj$edges[, 1:2]], col = "cyan1")
 #' @export
-area2d <- function(mesh, method = "concave", alpha = 0.5){
+area2d <- function(mesh, method = "concave"){
   # Perform various checks:
   if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Get the (x,y) coordinates of all the vertices
   FootprintVerts <- t(mesh$vb[1:2, ])
   FootprintVerts <- FootprintVerts[!duplicated(FootprintVerts),]
-  if (method == "alpha") {
-    #1 extract the hull using the package aphahull
-    Hull <- alphahull::ahull(x = FootprintVerts[, 1], y = FootprintVerts[, 2], alpha = alpha)
-    #2 get the 2D area using the package aphahull
-    Area2D <- alphahull::areaahull(Hull)
-  }
   if (method == "concave") {
     #1 move all coordinates >= 0
     FootprintVerts[, 1] <- FootprintVerts[, 1] - min(FootprintVerts[, 1])
@@ -187,20 +178,20 @@ area2d <- function(mesh, method = "concave", alpha = 0.5){
 #' @return If total = FALSE, a numeric vector of dne values for all the polygons of the
 #' mesh. If total = TRUE, a single DNE value, calculated as the sum of the
 #' products of polygon normal energies * polygon areas.
-#' @references \href{https://onlinelibrary.wiley.com/doi/abs/10.1002/ajpa.21489}{Bunn et al. (2011)}
-#' @references \href{https://link.springer.com/article/10.1007/s10914-016-9326-0}{Pampush et al. (2016)}
-#' @seealso \code{\link[molaR]{molaR::DNE}}
+#' @references \doi{10.1002/ajpa.21489}{Bunn et al. (2011)}
+#' @references \doi{10.1007/s10914-016-9326-0}{Pampush et al. (2016)}
+#' @seealso \code{\link[molaR]{DNE}}
 #' @examples
-#' pongo_dne <- dne(dkpongo$OES)
-#' summary(pongo_dne)
+#' dne <- dne(dkmodel$complex)
+#' summary(dkmodel$complex)
 #'
 #' #total DNE value corresponds to the sum of products Dne * Area:
-#' round(sum(dne(dkpongo$OES)*Rvcg::vcgArea(dkpongo$OES, perface = TRUE)$pertriangle), 3)
+#' round(sum(dne*Rvcg::vcgArea(dkmodel$complex, perface = TRUE)$pertriangle), 3)
 #' #can be directly computed using \code{dne}:
-#' dne(dkpongo$OES, total = TRUE)
+#' dne(dkmodel$complex, total = TRUE)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, dne(dkpongo$OES), legend.type = "log", col = "dne")
+#' dkmap(dkmodel$complex, dne, legend.type = "log", col = "dne")
 #' @export
 dne <- function(mesh, range = 0.999, total = FALSE){
   # Perform various checks:
@@ -249,11 +240,11 @@ dne <- function(mesh, range = 0.999, total = FALSE){
 #' @seealso \code{\link{rfi}}
 #' @seealso \code{\link{slope}}
 #' @examples
-#' pongo_elev <- elev(dkpongo$OES)
-#' summary(pongo_elev)
+#' elev <- elev(dkmodel$cusp)
+#' summary(elev)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, elev(dkpongo$OES))
+#' dkmap(dkmodel$cusp, elev)
 #' @export
 elev <- function(mesh, origin = TRUE){
   # Perform various checks:
@@ -281,7 +272,7 @@ elev <- function(mesh, origin = TRUE){
 #'     is the bucco-lingual axis, the Y-axis is the mesio-distal axis, and the
 #'     occlusal plane is parallel to the (XY) plane and faces upward.
 #' @examples
-#' hypso(dkpongo$OES)
+#' hypso(dkmodel$cusp)
 #' @export
 hypso <- function(mesh, origin = TRUE){
   # Perform various checks:
@@ -314,14 +305,14 @@ hypso <- function(mesh, origin = TRUE){
 #' between 0 and 180.
 #' @param mesh object of class mesh3d
 #' @return A numeric vector of inclination values for all the polygons of the mesh.
-#' @references \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy et al. (2013)}
+#' @references \doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 #' @seealso \code{\link{slope}}
 #' @examples
-#' pongo_inclin <- inclin(dkpongo$OES)
-#' summary(pongo_inclin)
+#' inclin <- inclin(dkmodel$cusp)
+#' summary(inclin)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, inclin(dkpongo$OES), col = "inclin",
+#' dkmap(dkmodel$cusp, inclin, col = "inclin",
 #' min.range = 0, max.range = 180, legend = TRUE)
 #' @export
 inclin <- function(mesh){
@@ -348,34 +339,34 @@ inclin <- function(mesh){
 #' @description Compute the distance from enamel vertices to dentine mesh.
 #' @param oes object of class mesh3d; should be the outer enamel surface
 #' @param edj object of class mesh3d; should be the enamel-dentine junction
-#' @param ray logical, if TRUE the search is along vertex normals (default)
+#' @param ray logical, if TRUE the search is along vertex normals (default is FALSE)
 #' @return A numeric vector of vertex-to-mesh distance values for all the polygons of the x mesh.
-#' @references \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy
-#' et al. (2013)}
-#' @references \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0138802}{Guy
-#' et al. (2015)}
-#' @references \href{https://www.frontiersin.org/articles/10.3389/fphys.2017.00524/full}{Thiery
-#' et al. (2017)}
-#' @references \href{https://royalsocietypublishing.org/doi/10.1098/rsbl.2019.0671}{Schwartz
-#' et al. (2020)}
-#' @seealso \code{\link[Morpho]{Morpho::meshDist}}
+#' @references \doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
+#' @references \doi{10.1371/journal.pone.0138802}{Guy et al. (2015)}
+#' @references \doi{10.3389/fphys.2017.00524}{Thiery et al. (2017)}
+#' @references \doi{10.1098/rsbl.2019.0671}{Schwartz et al. (2020)}
+#' @seealso \code{\link[Morpho]{meshDist}}
 #' @examples
-#' edd_pongo <- oedist(dkpongo$OES, dkpongo$EDJ)
-#' summary(edd_pongo)
-#' AETgeom <- mean(edd_pongo)
-#' #Geometric relative enamel thickness, obtained by dividing AETgeom by the square root of EDJ area
-#' #Note: it is different from classic RET which requires the volume of the dentine inside the enamel cap (see Thiery et al., 2017)
-#' AETgeom/sqrt(Rvcg::vcgArea(dkpongo$EDJ))
+#' edd <- oedist(dkmodel$cusp, dkmodel$flat)
+#' summary(edd)
+#' AETgeom <- mean(edd)
+#' #Geometric relative enamel thickness, obtained by dividing AETgeom by the
+#' #square root of EDJ area
+#' #Note: it is different from classic RET which requires the volume of the
+#' #dentine inside the enamel cap (see Thiery et al., 2017)
+#' AETgeom/sqrt(Rvcg::vcgArea(dkmodel$flat))
 #' #Absolute crown strength:
-#' edj_radius_pongo <- max(dist(cbind(dkpongo$EDJ$vb[1,], dkpongo$EDJ$vb[2,])))/2
-#' sqrt(mean(edd_pongo) * edj_radius_pongo)
+#' edj_radius <- max(dist(cbind(dkmodel$flat$vb[1,], dkmodel$flat$vb[2,])))/2
+#' sqrt(mean(edd) * edj_radius)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, oedist(dkpongo$OES, dkpongo$EDJ))
+#' oedist <- doolkit::oedist(dkmodel$cusp, dkmodel$flat)
+#' dkmap(dkmodel$cusp, oedist)
 #' #distance map can also be rendered on EDJ surface:
-#' dkmap(dkpongo$EDJ, oedist(dkpongo$EDJ, dkpongo$OES, ray = FALSE))
+#' eodist <- oedist(dkmodel$flat, dkmodel$cusp)
+#' dkmap(dkmodel$flat, eodist)
 #' @export
-oedist <- function(oes, edj, ray = TRUE){
+oedist <- function(oes, edj, ray = FALSE){
   # Perform various checks:
   if (class(oes) != "mesh3d") stop("oes must be an object of class 'mesh3d'")
   if (class(edj) != "mesh3d") stop("edj must be an object of class 'mesh3d'")
@@ -395,24 +386,24 @@ oedist <- function(oes, edj, ray = TRUE){
 
 # opc----
 #' @title orientation patch count
-#' @description Count the number of orientation patches using \code{\link[poly.network]{poly.network}}.
+#' @description Count the number of orientation patches using \code{\link{poly.network}}.
 #' @param mesh object of class mesh3d
 #' @param bins the number of orientation bins to be defined (default set to 8)
 #' @param min.size the minimal amount of polygons defining a "patch" (default set to 3)
 #' @param rotation if applicable, the number of degrees to which bins are to be rotated.
 #' By default the bins start from an angle of pi/2 and rotates clockwise.
 #' @return A data.frame displaying the number of patches and their size (number of triangles)
-#' for each orientation bin. Note: if you want the surface area of each patch, see\code{\link[poly.network]{poly.network}}
-#' @references \href{https://www.nature.com/articles/nature05433}{Evans et al. (2007)}
+#' for each orientation bin. Note: if you want the surface area of each patch, see\code{\link{poly.network}}
+#' @references \doi{10.1038/nature05433}{Evans et al. (2007)}
 #' @seealso \code{\link{orient}}
 #' @seealso \code{\link{opcr}}
 #' @examples
 #' #8 bins (default):
-#' pongo_opc <- opc(dkpongo$OES)
+#' opc <- opc(dkmodel$complex)
 #' #8 bins starting from mesial, as in Evans et al. 2007:
-#' pongo_opc <- opc(dkpongo$OES, rotation = -(360/16))
+#' opc <- opc(dkmodel$complex, rotation = -(360/16))
 #' #4 bins (mesial, buccal, distal and lingual):
-#' pongo_opc <- opc(dkpongo$OES, bins = 4, rotation = -(360/8))
+#' opc <- opc(dkmodel$complex, bins = 4, rotation = -(360/8))
 #'
 #' @export
 opc <- function(mesh, bins = 8, min.size = 3, rotation = 0){
@@ -470,15 +461,15 @@ opc <- function(mesh, bins = 8, min.size = 3, rotation = 0){
 #' @param min.size the minimal amount of polygons defining a "patch" (default set to 3)
 #' @return A data.frame displaying the number of patches and their size (number of triangles)
 #' for each orientation bin.
-#' @references \href{https://www.nature.com/articles/nature10880}{Wilson et al. (2012)}
+#' @references \doi{10.1038/nature10880}{Wilson et al. (2012)}
 #' @seealso \code{\link{opc}}
 #' @seealso \code{\link{orient}}
 #' @seealso \code{\link[molaR]{OPCr}}
 #' @examples
 #' #8bins (default):
-#' pongo_opcr <- opcr(dkpongo$OES)
+#' opcr <- opcr(dkmodel$complex)
 #' #16 bins (computation time increase exponentially):
-#' pongo_opcr <- opcr(dkpongo$OES, bins = 16)
+#' opcr <- opcr(dkmodel$complex, bins = 16)
 #' @export
 opcr <- function(mesh, bins = 8, min.size = 3){
   # Perform various checks:
@@ -508,20 +499,9 @@ opcr <- function(mesh, bins = 8, min.size = 3){
 #' @seealso \code{\link{opc}}
 #' @seealso \code{\link{opcr}}
 #' @examples
-#' pongo_orient <- orient(dkpongo$OES)
-#' summary(pongo_orient)
+#' orient <- orient(dkmodel$complex)
+#' summary(orient)
 #'
-#' #render on a map:
-#' #2 bins
-#' dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 2, col = c("yellow1", "red1"),
-#' min.range = 0, max.range = 360, legend = TRUE, legend.type = "pie")
-#' #4 bins
-#' dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 4, col = c("royalblue1",
-#' "yellow1", "red1", "green3"), min.range = 0, max.range = 360, legend = TRUE,
-#' legend.type = "pie")
-#' #8 bins
-#' dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 8, col = "orient",
-#' min.range = 0, max.range = 360, legend = TRUE, legend.type = "pie")
 #' @export
 orient <- function(mesh){
   # Perform various checks:
@@ -543,33 +523,31 @@ orient <- function(mesh){
 #' @param mesh object of class mesh3d
 #' @param method a character string indicating which method is to be used for the computation of
 #' relief index
-#' @param hull the method used to compute the hull of the 2d projection, either 'convex' 'concave' or 'alpha'.
+#' @param hull the method used to compute the hull of the 2d projection, either 'convex' or 'concave'.
 #' The default method is 'convex'. See \code{\link{area2d}}
-#' @param alpha the alpha value when using alpha hull to compute 2d area. See \code{\link[alphahull]{ahull}}
 #' @return A single relief index value.
-#' @references \href{https://doi.org/10.1016/j.jhevol.2008.08.002}{Boyer (2008)}
-#' \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy
-#' et al. (2013)}
+#' @references \doi{10.1016/j.jhevol.2008.08.002}{Boyer (2008)}
+#' \doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 #' \href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 #' @seealso \code{\link{area2d}}
 #' @seealso \code{\link[molaR]{RFI}}
 #' @examples
-#' pongo_rfi <- rfi(dkpongo$OES, method = "Ungar")
-#' pongo_lrfi <- rfi(dkpongo$OES, method = "Boyer")
-#' pongo_gamma <- rfi(dkpongo$OES, method = "Guy")
+#' rfi <- rfi(dkmodel$cusp, method = "Ungar")
+#' lrfi <- rfi(dkmodel$cusp, method = "Boyer")
+#' gamma <- rfi(dkmodel$cusp, method = "Guy")
 #' @export
-rfi <- function(mesh, method = "Ungar", hull = "concave", alpha = 0.5){
+rfi <- function(mesh, method = "Ungar", hull = "concave"){
   # Perform various checks:
   if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
   # Main job
   if (method == "Ungar"){
     Surf3D <- Rvcg::vcgArea(mesh)
-    Surf2D <- doolkit::area2d(mesh, method = hull, alpha = alpha)
+    Surf2D <- doolkit::area2d(mesh, method = hull)
     RFI <- Surf3D/Surf2D
   }
   if (method == "Boyer"){
     Surf3D <- Rvcg::vcgArea(mesh)
-    Surf2D <- doolkit::area2d(mesh, method = hull, alpha = alpha)
+    Surf2D <- doolkit::area2d(mesh, method = hull)
     RFI <- log(sqrt(Surf3D)/sqrt(Surf2D))
   }
   if (method == "Guy"){
@@ -589,18 +567,14 @@ rfi <- function(mesh, method = "Ungar", hull = "concave", alpha = 0.5){
 #' @param origin logical, if TRUE both cropped and uncropped mesh are translated along the z-axis
 #' so that the lowest z of the uncropped mesh = 0; see \code{\link{dkorigin}}
 #' @return A single relief rate value.
-#' @references \href{https://onlinelibrary.wiley.com/doi/abs/10.1002/ajpa.23916}{Thiery et al. (2019)}
+#' @references \doi{10.1002/ajpa.23916}{Thiery et al. (2019)}
 #' @examples
-#' pongo_medelev <- median(elev(dkpongo$OES))
-#' pongo_basins <- dkcrop(dkpongo$OES, which(elev(dkpongo$OES) < pongo_medelev))
-#' pongo_cusps <- dkcrop(dkpongo$OES, which(elev(dkpongo$OES) > pongo_medelev))
+#' medelev <- median(elev(dkmodel$cusp))
+#' basins <- dkcrop(dkmodel$cusp, which(elev(dkmodel$cusp) < medelev))
+#' cusps <- dkcrop(dkmodel$cusp, which(elev(dkmodel$cusp) > medelev))
 #'
-#' #Not run:
-#' dkmap(pongo_basins, elev(pongo_basins))
-#' dkmap(pongo_cusps, elev(pongo_cusps))
-#'
-#' rrate(dkpongo$OES, pongo_basins)
-#' rrate(dkpongo$OES, pongo_cusps)
+#' rrate(dkmodel$cusp, basins)
+#' rrate(dkmodel$cusp, cusps)
 #' @export
 rrate <- function(uncropped, cropped, origin = TRUE){
   # Perform various checks:
@@ -625,26 +599,27 @@ rrate <- function(uncropped, cropped, origin = TRUE){
 #' see \code{\link{dkorigin}}
 #' @return A list of indices:
 #' \itemize{
-#'   \item First item
-#'   \item Second item
-#'   \item Second item
-#'   \item Second item
+#'   \item Form factor (Horton, 1932)
+#'   \item Basin elongation (Schum, 1956)
+#'   \item Lemniscate ratio 'K' (Chorley et al., 1957)
 #' }
 #' @details A handful of indices have been developed to characterize the shape of natural
 #' landscapes, including drainage basins. While some indices are very scale-sensitive (e.g.,
-#' Gravelius' compactness coefficient, see Bendjoudi & Hubert, 2002), others are dimensionless.
+#' Gravelius' compactness coefficient), others are dimensionless.
 #' Horton (1932) introduced a form factor computed as the quotient of the basin's surface area
 #' over the square of the maximum basin length. Schumm (1956) developed a basin elongation index
 #' computed as the quotient of twice the square root of surface area over the product of basin
 #' length and the squareroot of pi. Lastly, Chorley et al. (1957) developed a lemniscate ratio
 #' which corresponds to the ratio between the surface of a lemniscate of same length over the
 #' basin area,and computed as (pi*(Length^2))/(4*Area).
-#' @references \href{https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/TR013i001p00350}{Horton (1932)}
-#' @references \href{https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/67/5/597/4811/EVOLUTION-OF-DRAINAGE-SYSTEMS-AND-SLOPES-IN?redirectedFrom=fulltext}{Schumm (1956)}
-#' @references \href{http://www.ajsonline.org/content/255/2/138.extract}{Chorley et al. (1957)}
-#' @references \href{http://hydrologie.org/hsj/470/hysj_47_06_0921.pdf}{Bendjoudi & Hubert (2002)}
+#' @references \doi{10.1029/TR013i001p00350}{Horton (1932)}
+#' @references \doi{10.1130/0016-7606(1956)67[597:EODSAS]2.0.CO;2}{Schumm (1956)}
+#' @references \doi{10.2475/ajs.255.2.138}{Chorley et al. (1957)}
 #' @examples
-#' shape.index(dkpongo$OES)
+#' ShapInd <- shape.index(dkmodel$basin)
+#' ShapInd$FormFactor
+#' ShapInd$Elongation
+#' ShapInd$K
 #' @export
 shape.index <- function(mesh, origin = TRUE) {
   # Perform various checks:
@@ -672,12 +647,13 @@ shape.index <- function(mesh, origin = TRUE) {
 #' @param mesh object of class mesh3d
 #' @return A numeric vector of slope values for all the polygons of the mesh.
 #' @seealso \code{\link{inclin}}
+#' @references \href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 #' @examples
-#' pongo_slope <- slope(dkpongo$OES)
-#' summary(pongo_slope)
+#' slope <- slope(dkmodel$cusp)
+#' summary(slope)
 #'
 #' #render on a map:
-#' dkmap(dkpongo$OES, slope(dkpongo$OES), col.levels = 9, col = "slope",
+#' dkmap(dkmodel$cusp, slope, col.levels = 9, col = "slope",
 #' min.range = 0, max.range = 90, legend = TRUE)
 #' @export
 slope <- function(mesh) {

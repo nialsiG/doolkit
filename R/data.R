@@ -1,7 +1,7 @@
 # dkpongo----
 #' @title dkpongo
 #' @description A dataset containing the OES and the EDJ surfaces of a \emph{Pongo pygmaeus} upper second molar (SMF-1117)
-#' @example Pongo_OES <- dkpongo$OES
+#' @examples Pongo_OES <- dkpongo$OES
 #' Pongo_EDJ <- dkpongo$EDJ
 #' @source \url{https://www.morphosource.org/Detail/MediaDetail/Show/media_id/42357}
 dkpongo <- list(OES = Rvcg::vcgPlyRead(system.file("extdata", "plys", "Pongo_pygmaeus_SMF-1117_EM_50k.ply", package = "doolkit"), updateNormals = TRUE, clean = TRUE),
@@ -12,7 +12,7 @@ usethis::use_data(dkpongo, overwrite = TRUE)
 # dkmodel----
 #' @title dkmodel
 #' @description A list containing theoretical model surfaces corresponding to a flat surface, a single cusp, a shallow basin and a complex surface.
-#' @example Flat_surface <- dkmodel$flat
+#' @examples Flat_surface <- dkmodel$flat
 #' Single_cusp <- dkmodel$cusp
 #' Shallow_basin <- dkmodel$basin
 #' Complex_surface <- dkmodel$complex

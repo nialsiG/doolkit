@@ -27,47 +27,56 @@ polygon.network <- methods::setClass("polygon.network", slots = c(membership = "
 #' to its membership.
 #' @examples
 #' #Isolate cusps using elevation:
-#' mythreshold <- quantile(elev(dkpongo$OES), 0.65)
-#' cusps <- poly.network(dkpongo$OES, elev(dkpongo$OES), lwr.limit = mythreshold, min.size = 100)
-#' myvector <- rep(0, Rvcg::nfaces(dkpongo$OES))
+#' mythreshold <- quantile(elev(dkmodel$cusp), 0.65)
+#' cusps <- poly.network(dkmodel$cusp, elev(dkmodel$cusp), lwr.limit = mythreshold,
+#' min.size = 100)
+#' myvector <- rep(0, Rvcg::nfaces(dkmodel$cusp))
 #' myvector[cusps@@faces] <- cusps@@membership[]
 #' myvector <- as.factor(myvector)
 #' ncusps <- length(levels(myvector)) - 1
 #' levels(myvector) <- c(0:ncusps + 1)
-#' dkmap(dkpongo$OES, as.numeric(myvector), col = cbPalette <- c("#000000", "#E69F00",
-#' "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"), col.levels = ncusps + 1,
-#' legend.lab = "Elevation (mm)")
+#' dkmap(dkmodel$cusp, as.numeric(myvector), col = cbPalette <- c("#000000", "#E69F00",
+#' "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"),
+#' col.levels = ncusps + 1, legend.lab = "Elevation (mm)")
 #'
 #' #Any other variables could be used to define the clusters
 #' #Mean curvature:
-#' crests <- poly.network(dkpongo$OES, Rvcg::vcgCurve(dkpongo$OES)$meanitmax,
-#' lwr.limit = quantile(Rvcg::vcgCurve(dkpongo$OES)$meanitmax, 0.8), min.size = 10)
-#' doolkit::dkmap(mesh = dkpongo$OES, y = doolkit::arc(dkpongo$OES, range = c(-20, 20)), col = "arc",
-#' col.levels = 256, min.range = -20, max.range = 20, orient = "occlusal", legend.lab = "ARC",
-#' alpha.thresh = quantile(doolkit::arc(dkpongo$OES), 0.8), alpha = 0.3, alpha.above = FALSE)
-#' valleys <- poly.network(dkpongo$OES, Rvcg::vcgCurve(dkpongo$OES)$meanitmax,
-#' upr.limit = quantile(Rvcg::vcgCurve(dkpongo$OES)$meanitmax, 0.2), min.size = 10)
-#' doolkit::dkmap(mesh = dkpongo$OES, y = doolkit::arc(dkpongo$OES, range = c(-20, 20)), col = "arc",
-#' col.levels = 256, min.range = -20, max.range = 20, orient = "occlusal", legend.lab = "ARC",
-#' alpha.thresh = quantile(doolkit::arc(dkpongo$OES), 0.2), alpha = 0.3, alpha.above = TRUE)
+#' crests <- poly.network(dkmodel$complex, Rvcg::vcgCurve(dkmodel$complex)$meanitmax,
+#' lwr.limit = quantile(Rvcg::vcgCurve(dkmodel$complex)$meanitmax, 0.8), min.size = 10)
+#' doolkit::dkmap(mesh = dkmodel$complex, y = doolkit::arc(dkmodel$complex,
+#' range = c(-20, 20)), col = "arc", col.levels = 256, min.range = -20,
+#' max.range = 20, orient = "occlusal", legend.lab = "ARC",
+#' alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.8), alpha = 0.3,
+#' alpha.above = FALSE)
+#'
+#' valleys <- poly.network(dkmodel$complex, Rvcg::vcgCurve(dkmodel$complex)$meanitmax,
+#' upr.limit = quantile(Rvcg::vcgCurve(dkmodel$complex)$meanitmax, 0.2), min.size = 10)
+#' doolkit::dkmap(mesh = dkmodel$complex, y = doolkit::arc(dkmodel$complex,
+#' range = c(-20, 20)), col = "arc", col.levels = 256, min.range = -20,
+#' max.range = 20, orient = "occlusal", legend.lab = "ARC",
+#'  alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.2), alpha = 0.3,
+#'  alpha.above = TRUE)
 #'
 #' #Orientation and surface of patches:
 #' patch_orient <- data.frame(bin = NULL, patch = NULL, size = NULL, surface = NULL)
 #' for (i in 1:8) {
-#'   Cluster <- poly.network(dkpongo$OES, orient(dkpongo$OES), lwr.limit = 45 * (i - 1),
-#'   upr.limit = 45 * i)
+#'   Cluster <- poly.network(dkmodel$complex, orient(dkmodel$complex),
+#'   lwr.limit = 45 * (i - 1), upr.limit = 45 * i)
 #'   Patches <- levels(as.factor(Cluster@@membership))
 #'   Bins <- rep(paste(45 * (i - 1), "-", 45 * i), length(Patches))
 #'   Areas <- rep(0, length(Patches))
 #'   for (j in 1:length(Patches)) {
 #'     test <- Cluster@@faces[Cluster@@membership == Patches[j]]
-#'     Areas[j] <- round(sum(Rvcg::vcgArea(dkpongo$OES, perface = TRUE)$pertriangle[test]), 3)
+#'     Areas[j] <- round(sum(Rvcg::vcgArea(dkmodel$complex,
+#'     perface = TRUE)$pertriangle[test]), 3)
 #'   }
-#'   patch_orient <- data.frame(rbind(patch_orient, cbind.data.frame(Bins, Patches, Areas)))
+#'   patch_orient <- data.frame(rbind(patch_orient,
+#'   cbind.data.frame(Bins, Patches, Areas)))
 #' }
-#' #Since patches made of 3 or less polygons are discarded, sum of patch areas < total surface area:
+#' #Since patches made of 3 or less polygons are discarded,
+#' #sum of patch areas < total surface area:
 #' sum(patch_orient$Areas)
-#' Rvcg::vcgArea(dkpongo$OES)
+#' Rvcg::vcgArea(dkmodel$complex)
 #'
 #' @export
 poly.network <- function(mesh, y, lwr.limit = stats::quantile(y, 0.75), upr.limit = stats::quantile(y, 1), min.size = 3) {
