@@ -19,11 +19,11 @@ A numeric vector of elevation values for all the polygons of the mesh.
 Compute the elevation (z component of triangle barycenter).
 }
 \examples{
-pongo_elev <- elev(dkpongo$OES)
-summary(pongo_elev)
+elev <- elev(dkmodel$cusp)
+summary(elev)
 
 #render on a map:
-dkmap(dkpongo$OES, elev(dkpongo$OES))
+dkmap(dkmodel$cusp, elev)
 }
 \seealso{
 \code{\link{inclin}}

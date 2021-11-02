@@ -28,23 +28,22 @@ of the total mesh object. As a result, ARC is a scale-free estimate of surface c
 be used to estimate the sharpness of a mesh.
 }
 \examples{
-pongo_curvature <- arc(dkpongo$OES)
-summary(pongo_curvature)
+curvature <- arc(dkmodel$complex)
+summary(curvature)
 
 #There is a default truncature of extreme values below 1\% or above 99\%.
 #Without truncature:
-pongo_curvature <- arc(dkpongo$OES, range = c(0, 1))
-summary(pongo_curvature)
+curvature <- arc(dkmodel$complex, range = c(0, 1))
+summary(curvature)
 
 #mean positive ARC:
-parc <- mean(pongo_curvature[pongo_curvature >= 0])
+parc <- mean(curvature[curvature >= 0])
 #mean negative ARC:
-narc <- mean(pongo_curvature[pongo_curvature < 0])
+narc <- mean(curvature[curvature < 0])
 
 #render on a map:
-dkmap(dkpongo$OES, arc(dkpongo$OES), col = "arc",
+dkmap(dkmodel$complex, curvature, col = "arc",
 min.range = -20, max.range = 20)
 #absolute truncature of the values above 20 or below -20:
-dkmap(dkpongo$OES, arc(dkpongo$OES, range = c(-20, 20)), col = "arc",
-min.range = -20, max.range = 20)
+dkmap(dkmodel$complex, curvature, col = "arc", min.range = -20, max.range = 20)
 }

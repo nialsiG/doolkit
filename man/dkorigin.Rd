@@ -20,6 +20,6 @@ Sets the lowermost point of the mesh to 0 on the Z-axis
 dkmap(dkpongo$OES, doolkit::elev(dkpongo$OES), col = "elev", legend.lab = "Elevation (mm)")
 
 #Map of elevation after dkorigin:
-pongo_leveled <- dkorigin(dkpongo$OES)
-dkmap(pongo_leveled, doolkit::elev(pongo_leveled), col = "elev", legend.lab = "Elevation (mm)")
+leveled <- dkorigin(dkpongo$OES)
+dkmap(leveled, doolkit::elev(leveled), col = "elev", legend.lab = "Elevation (mm)")
 }

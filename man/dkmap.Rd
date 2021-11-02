@@ -133,41 +133,25 @@ An rgl window displaying the topography of a variable over a 3d mesh.
 Map topographic variables on a 3d triangle mesh.
 }
 \examples{
-#Map of elevation:
-dkmap(dkpongo$OES, doolkit::elev(dkpongo$OES), col = "elev", legend.lab = "Elevation (mm)")
-
 #Map of orientation:
-dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 8, col = "orient",
+orient <- orient(dkmodel$complex)
+dkmap(dkmodel$complex, orient, col.levels = 8, col = "orient",
 legend.lab = "Orientation (degrees)",legend.type = "pie", min.range = 0,
-max.range = 360)
-
-#Map of slope:
-dkmap(dkpongo$OES, doolkit::slope(dkpongo$OES), col.levels = 9, col = "slope",
-legend.lab = "Slope (degrees)", min.range = 0, max.range = 90)
-
-#Map of inclination:
-dkmap(dkpongo$OES, doolkit::inclin(dkpongo$OES), col = "inclin",
-legend.lab = "Inclination (degrees)", min.range = 0, max.range = 180)
-
-#Map of mean curvature:
-dkmap(dkpongo$OES, Rvcg::vcgCurve(dkpongo$OES)$meanitmax, col = "arc",
-legend.lab = "Mean curvature (degrees)")
+max.range = 360, orient = "occlusal")
 
 #Map of area-relative curvature:
-dkmap(dkpongo$OES, doolkit::arc(dkpongo$OES), col = "arc", legend.lab = "ARC",
-min.range = -20, max.range = 20, col.levels = 15)
+arc <- arc(dkmodel$complex)
+dkmap(dkmodel$complex, arc, col = "arc", legend.lab = "ARC",
+min.range = -20, max.range = 20, col.levels = 15, orient = "occlusal")
 
 #Map of Dirichlet normal energy:
-dkmap(dkpongo$OES, doolkit::dne(dkpongo$OES), col = "dne", legend.lab = "DNE", legend.type = "log")
+dne <- dne(dkmodel$complex)
+dkmap(dkmodel$complex, dne, col = "dne", legend.lab = "DNE",
+legend.type = "log", orient = "occlusal")
 
 #Map of 3d-Area of polygons (for surface checking):
-dkmap(dkpongo$OES, Rvcg::vcgArea(dkpongo$OES, perface = TRUE)$pertriangle,
-legend.lab = "3d Area (mm\U00B2)")
-
-#Map enamel-dentine distance:
-dkmap(dkpongo$OES, doolkit::oedist(dkpongo$OES, dkpongo$EDJ),
-legend.lab = "Enamel-Dentine distance (mm)")
-
+dkmap(dkmodel$complex, Rvcg::vcgArea(dkmodel$complex, perface = TRUE)$pertriangle,
+legend.lab = "3d Area (mm\U00B2)", orient = "occlusal")
 }
 \seealso{
 \code{\link[rgl]{rgl}}

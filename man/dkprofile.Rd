@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility.R
 \name{dkprofile}
 \alias{dkprofile}
-\title{cumulative profiles and their slope}
+\title{cumulative profile, its slope and the area under its curve}
 \usage{
 dkprofile(
   x,
@@ -61,5 +61,5 @@ col = "#D55E00", linetype = "dotted")
 
 }
 \references{
-\href{https://www.frontiersin.org/articles/10.3389/fphys.2017.00524/full}{Thiery et al. (2017)}
+\doi{10.3389/fphys.2017.00524}{Thiery et al. (2017)}
 }

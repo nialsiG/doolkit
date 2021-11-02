@@ -16,4 +16,10 @@ dkmodel
 \description{
 A list containing theoretical model surfaces corresponding to a flat surface, a single cusp, a shallow basin and a complex surface.
 }
+\examples{
+Flat_surface <- dkmodel$flat
+Single_cusp <- dkmodel$cusp
+Shallow_basin <- dkmodel$basin
+Complex_surface <- dkmodel$complex
+}
 \keyword{datasets}

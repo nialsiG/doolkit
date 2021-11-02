@@ -16,18 +16,18 @@ A vector of indices corresponding to the triangles with at least one vertex on t
 Selects the border of a 3d triangle mesh.
 }
 \examples{
-pongo_border <- dkborder(dkpongo$OES)
+border <- dkborder(dkmodel$cusp)
 
 # Map the border in orange:
-is_border <- rep(1, Rvcg::nfaces(dkpongo$OES))
-is_border[pongo_border] <- 2
-dkmap(dkpongo$OES, is_border, col = c("white", "#E69F00"), col.levels = 2, legend = FALSE,
+is_border <- rep(1, Rvcg::nfaces(dkmodel$cusp))
+is_border[border] <- 2
+dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00"), col.levels = 2, legend = FALSE,
 scalebar = FALSE)
 
 # Compare with vcgBorder from the R package Rvcg, in blue:
-pongo_vcgborder <- which(Rvcg::vcgBorder(dkpongo$OES)$borderit == TRUE)
-is_border[pongo_vcgborder] <- 3
-dkmap(dkpongo$OES, is_border, col = c("white", "#E69F00", "#56B4E9"), col.levels = 3,
+vcgborder <- which(Rvcg::vcgBorder(dkmodel$cusp)$borderit == TRUE)
+is_border[vcgborder] <- 3
+dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00", "#56B4E9"), col.levels = 3,
 legend = FALSE, scalebar = FALSE)
 #As you can see, it all depends on what you want to select!
 

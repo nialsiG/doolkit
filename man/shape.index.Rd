@@ -15,10 +15,9 @@ see \code{\link{dkorigin}}}
 \value{
 A list of indices:
 \itemize{
-  \item First item
-  \item Second item
-  \item Second item
-  \item Second item
+  \item Form factor (Horton, 1932)
+  \item Basin elongation (Schum, 1956)
+  \item Lemniscate ratio 'K' (Chorley et al., 1957)
 }
 }
 \description{
@@ -27,7 +26,7 @@ Compute various shape indices.
 \details{
 A handful of indices have been developed to characterize the shape of natural
 landscapes, including drainage basins. While some indices are very scale-sensitive (e.g.,
-Gravelius' compactness coefficient, see Bendjoudi & Hubert, 2002), others are dimensionless.
+Gravelius' compactness coefficient), others are dimensionless.
 Horton (1932) introduced a form factor computed as the quotient of the basin's surface area
 over the square of the maximum basin length. Schumm (1956) developed a basin elongation index
 computed as the quotient of twice the square root of surface area over the product of basin
@@ -36,14 +35,15 @@ which corresponds to the ratio between the surface of a lemniscate of same lengt
 basin area,and computed as (pi*(Length^2))/(4*Area).
 }
 \examples{
-shape.index(dkpongo$OES)
+ShapInd <- shape.index(dkmodel$basin)
+ShapInd$FormFactor
+ShapInd$Elongation
+ShapInd$K
 }
 \references{
-\href{https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/TR013i001p00350}{Horton (1932)}
+\doi{10.1029/TR013i001p00350}{Horton (1932)}
 
-\href{https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/67/5/597/4811/EVOLUTION-OF-DRAINAGE-SYSTEMS-AND-SLOPES-IN?redirectedFrom=fulltext}{Schumm (1956)}
+\doi{10.1130/0016-7606(1956)67[597:EODSAS]2.0.CO;2}{Schumm (1956)}
 
-\href{http://www.ajsonline.org/content/255/2/138.extract}{Chorley et al. (1957)}
-
-\href{http://hydrologie.org/hsj/470/hysj_47_06_0921.pdf}{Bendjoudi & Hubert (2002)}
+\doi{10.2475/ajs.255.2.138}{Chorley et al. (1957)}
 }

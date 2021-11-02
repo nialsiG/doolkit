@@ -4,14 +4,14 @@
 \alias{oedist}
 \title{Distance from outer enamel surface to enamel dentine junction}
 \usage{
-oedist(oes, edj, ray = TRUE)
+oedist(oes, edj, ray = FALSE)
 }
 \arguments{
 \item{oes}{object of class mesh3d; should be the outer enamel surface}
 
 \item{edj}{object of class mesh3d; should be the enamel-dentine junction}
 
-\item{ray}{logical, if TRUE the search is along vertex normals (default)}
+\item{ray}{logical, if TRUE the search is along vertex normals (default is FALSE)}
 }
 \value{
 A numeric vector of vertex-to-mesh distance values for all the polygons of the x mesh.
@@ -20,34 +20,34 @@ A numeric vector of vertex-to-mesh distance values for all the polygons of the x
 Compute the distance from enamel vertices to dentine mesh.
 }
 \examples{
-edd_pongo <- oedist(dkpongo$OES, dkpongo$EDJ)
-summary(edd_pongo)
-AETgeom <- mean(edd_pongo)
-#Geometric relative enamel thickness, obtained by dividing AETgeom by the square root of EDJ area
-#Note: it is different from classic RET which requires the volume of the dentine inside the enamel cap (see Thiery et al., 2017)
-AETgeom/sqrt(Rvcg::vcgArea(dkpongo$EDJ))
+edd <- oedist(dkmodel$cusp, dkmodel$flat)
+summary(edd)
+AETgeom <- mean(edd)
+#Geometric relative enamel thickness, obtained by dividing AETgeom by the
+#square root of EDJ area
+#Note: it is different from classic RET which requires the volume of the
+#dentine inside the enamel cap (see Thiery et al., 2017)
+AETgeom/sqrt(Rvcg::vcgArea(dkmodel$flat))
 #Absolute crown strength:
-edj_radius_pongo <- max(dist(cbind(dkpongo$EDJ$vb[1,], dkpongo$EDJ$vb[2,])))/2
-sqrt(mean(edd_pongo) * edj_radius_pongo)
+edj_radius <- max(dist(cbind(dkmodel$flat$vb[1,], dkmodel$flat$vb[2,])))/2
+sqrt(mean(edd) * edj_radius)
 
 #render on a map:
-dkmap(dkpongo$OES, oedist(dkpongo$OES, dkpongo$EDJ))
+oedist <- doolkit::oedist(dkmodel$cusp, dkmodel$flat)
+dkmap(dkmodel$cusp, oedist)
 #distance map can also be rendered on EDJ surface:
-dkmap(dkpongo$EDJ, oedist(dkpongo$EDJ, dkpongo$OES, ray = FALSE))
+eodist <- oedist(dkmodel$flat, dkmodel$cusp)
+dkmap(dkmodel$flat, eodist)
 }
 \references{
-\href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy
-et al. (2013)}
+\doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 
-\href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0138802}{Guy
-et al. (2015)}
+\doi{10.1371/journal.pone.0138802}{Guy et al. (2015)}
 
-\href{https://www.frontiersin.org/articles/10.3389/fphys.2017.00524/full}{Thiery
-et al. (2017)}
+\doi{10.3389/fphys.2017.00524}{Thiery et al. (2017)}
 
-\href{https://royalsocietypublishing.org/doi/10.1098/rsbl.2019.0671}{Schwartz
-et al. (2020)}
+\doi{10.1098/rsbl.2019.0671}{Schwartz et al. (2020)}
 }
 \seealso{
-\code{\link[Morpho]{Morpho::meshDist}}
+\code{\link[Morpho]{meshDist}}
 }

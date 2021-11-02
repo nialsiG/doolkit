@@ -19,14 +19,17 @@ Crop a 3d triangle mesh.
 }
 \examples{
 #Crop above a certain threshold:
-mythreshold <- quantile(elev(dkpongo$OES), 0.5)
-mypolynetwork <- poly.network(dkpongo$OES, elev(dkpongo$OES), lwr.limit = mythreshold)
-mynewmesh <- dkcrop(dkpongo$OES, mypolynetwork)
+mythreshold <- quantile(elev(dkmodel$basin), 0.5)
+mypolynetwork <- poly.network(dkmodel$basin, elev(dkmodel$basin),
+lwr.limit = mythreshold)
+mynewmesh <- dkcrop(dkmodel$basin, mypolynetwork)
 dkmap(mynewmesh, elev(mynewmesh))
 
 #Crop the sharpest dental elements:
-sharpmesh <- dkcrop(dkpongo$OES, poly.network(dkpongo$OES, Rvcg::vcgCurve(dkpongo$OES)$meanitmax,
-lwr.limit = quantile(Rvcg::vcgCurve(dkpongo$OES)$meanitmax, 0.8), min.size = 50))
+sharpmesh <- dkcrop(dkmodel$basin, poly.network(dkmodel$basin,
+Rvcg::vcgCurve(dkmodel$basin)$meanitmax,
+lwr.limit = quantile(Rvcg::vcgCurve(dkmodel$basin)$meanitmax, 0.8),
+min.size = 50))
 dkmap(sharpmesh, arc(sharpmesh), col = "arc", col.levels = 20,
 min.range = -20, max.range = 20)
 #Map of the sharpest elements' elevation, slope and orientation;

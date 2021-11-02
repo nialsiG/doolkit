@@ -22,12 +22,12 @@ Compute the orientation patch count rotated of a triangle mesh.
 }
 \examples{
 #8bins (default):
-pongo_opcr <- opcr(dkpongo$OES)
+opcr <- opcr(dkmodel$complex)
 #16 bins (computation time increase exponentially):
-pongo_opcr <- opcr(dkpongo$OES, bins = 16)
+opcr <- opcr(dkmodel$complex, bins = 16)
 }
 \references{
-\href{https://www.nature.com/articles/nature10880}{Wilson et al. (2012)}
+\doi{10.1038/nature10880}{Wilson et al. (2012)}
 }
 \seealso{
 \code{\link{opc}}

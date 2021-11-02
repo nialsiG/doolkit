@@ -24,22 +24,22 @@ products of polygon normal energies * polygon areas.
 Compute the Dirichlet normal energy.
 }
 \examples{
-pongo_dne <- dne(dkpongo$OES)
-summary(pongo_dne)
+dne <- dne(dkmodel$complex)
+summary(dkmodel$complex)
 
 #total DNE value corresponds to the sum of products Dne * Area:
-round(sum(dne(dkpongo$OES)*Rvcg::vcgArea(dkpongo$OES, perface = TRUE)$pertriangle), 3)
+round(sum(dne*Rvcg::vcgArea(dkmodel$complex, perface = TRUE)$pertriangle), 3)
 #can be directly computed using \code{dne}:
-dne(dkpongo$OES, total = TRUE)
+dne(dkmodel$complex, total = TRUE)
 
 #render on a map:
-dkmap(dkpongo$OES, dne(dkpongo$OES), legend.type = "log", col = "dne")
+dkmap(dkmodel$complex, dne, legend.type = "log", col = "dne")
 }
 \references{
-\href{https://onlinelibrary.wiley.com/doi/abs/10.1002/ajpa.21489}{Bunn et al. (2011)}
+\doi{10.1002/ajpa.21489}{Bunn et al. (2011)}
 
-\href{https://link.springer.com/article/10.1007/s10914-016-9326-0}{Pampush et al. (2016)}
+\doi{10.1007/s10914-016-9326-0}{Pampush et al. (2016)}
 }
 \seealso{
-\code{\link[molaR]{molaR::DNE}}
+\code{\link[molaR]{DNE}}
 }

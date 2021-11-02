@@ -23,17 +23,13 @@ For instance, the relief rate could be computed from the portion of a molar abov
 the lowermost point of its central basin, compared to the whole tooth.
 }
 \examples{
-pongo_medelev <- median(elev(dkpongo$OES))
-pongo_basins <- dkcrop(dkpongo$OES, which(elev(dkpongo$OES) < pongo_medelev))
-pongo_cusps <- dkcrop(dkpongo$OES, which(elev(dkpongo$OES) > pongo_medelev))
+medelev <- median(elev(dkmodel$cusp))
+basins <- dkcrop(dkmodel$cusp, which(elev(dkmodel$cusp) < medelev))
+cusps <- dkcrop(dkmodel$cusp, which(elev(dkmodel$cusp) > medelev))
 
-#Not run:
-dkmap(pongo_basins, elev(pongo_basins))
-dkmap(pongo_cusps, elev(pongo_cusps))
-
-rrate(dkpongo$OES, pongo_basins)
-rrate(dkpongo$OES, pongo_cusps)
+rrate(dkmodel$cusp, basins)
+rrate(dkmodel$cusp, cusps)
 }
 \references{
-\href{https://onlinelibrary.wiley.com/doi/abs/10.1002/ajpa.23916}{Thiery et al. (2019)}
+\doi{10.1002/ajpa.23916}{Thiery et al. (2019)}
 }

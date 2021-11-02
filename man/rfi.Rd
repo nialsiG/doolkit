@@ -4,7 +4,7 @@
 \alias{rfi}
 \title{relief index}
 \usage{
-rfi(mesh, method = "Ungar", hull = "concave", alpha = 0.5)
+rfi(mesh, method = "Ungar", hull = "concave")
 }
 \arguments{
 \item{mesh}{object of class mesh3d}
@@ -12,10 +12,8 @@ rfi(mesh, method = "Ungar", hull = "concave", alpha = 0.5)
 \item{method}{a character string indicating which method is to be used for the computation of
 relief index}
 
-\item{hull}{the method used to compute the hull of the 2d projection, either 'convex' 'concave' or 'alpha'.
+\item{hull}{the method used to compute the hull of the 2d projection, either 'convex' or 'concave'.
 The default method is 'convex'. See \code{\link{area2d}}}
-
-\item{alpha}{the alpha value when using alpha hull to compute 2d area. See \code{\link[alphahull]{ahull}}}
 }
 \value{
 A single relief index value.
@@ -24,14 +22,13 @@ A single relief index value.
 Compute the relief index of a  3d triangle mesh.
 }
 \examples{
-pongo_rfi <- rfi(dkpongo$OES, method = "Ungar")
-pongo_lrfi <- rfi(dkpongo$OES, method = "Boyer")
-pongo_gamma <- rfi(dkpongo$OES, method = "Guy")
+rfi <- rfi(dkmodel$cusp, method = "Ungar")
+lrfi <- rfi(dkmodel$cusp, method = "Boyer")
+gamma <- rfi(dkmodel$cusp, method = "Guy")
 }
 \references{
-\href{https://doi.org/10.1016/j.jhevol.2008.08.002}{Boyer (2008)}
-\href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy
-et al. (2013)}
+\doi{10.1016/j.jhevol.2008.08.002}{Boyer (2008)}
+\doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 \href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 }
 \seealso{

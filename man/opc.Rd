@@ -18,22 +18,22 @@ By default the bins start from an angle of pi/2 and rotates clockwise.}
 }
 \value{
 A data.frame displaying the number of patches and their size (number of triangles)
-for each orientation bin. Note: if you want the surface area of each patch, see\code{\link[poly.network]{poly.network}}
+for each orientation bin. Note: if you want the surface area of each patch, see\code{\link{poly.network}}
 }
 \description{
-Count the number of orientation patches using \code{\link[poly.network]{poly.network}}.
+Count the number of orientation patches using \code{\link{poly.network}}.
 }
 \examples{
 #8 bins (default):
-pongo_opc <- opc(dkpongo$OES)
+opc <- opc(dkmodel$complex)
 #8 bins starting from mesial, as in Evans et al. 2007:
-pongo_opc <- opc(dkpongo$OES, rotation = -(360/16))
+opc <- opc(dkmodel$complex, rotation = -(360/16))
 #4 bins (mesial, buccal, distal and lingual):
-pongo_opc <- opc(dkpongo$OES, bins = 4, rotation = -(360/8))
+opc <- opc(dkmodel$complex, bins = 4, rotation = -(360/8))
 
 }
 \references{
-\href{https://www.nature.com/articles/nature05433}{Evans et al. (2007)}
+\doi{10.1038/nature05433}{Evans et al. (2007)}
 }
 \seealso{
 \code{\link{orient}}

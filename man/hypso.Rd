@@ -24,5 +24,5 @@ Compute the maximum height, length, width and corresponding
 hypsodonty index (ratio of the maximum height over the maximum length)
 }
 \examples{
-hypso(dkpongo$OES)
+hypso(dkmodel$cusp)
 }

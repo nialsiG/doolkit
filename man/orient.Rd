@@ -21,20 +21,9 @@ be located at an angle of 2*pi.
 Returns the occlusal orientation (exposure in GIS)
 }
 \examples{
-pongo_orient <- orient(dkpongo$OES)
-summary(pongo_orient)
+orient <- orient(dkmodel$complex)
+summary(orient)
 
-#render on a map:
-#2 bins
-dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 2, col = c("yellow1", "red1"),
-min.range = 0, max.range = 360, legend = TRUE, legend.type = "pie")
-#4 bins
-dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 4, col = c("royalblue1",
-"yellow1", "red1", "green3"), min.range = 0, max.range = 360, legend = TRUE,
-legend.type = "pie")
-#8 bins
-dkmap(dkpongo$OES, orient(dkpongo$OES), col.levels = 8, col = "orient",
-min.range = 0, max.range = 360, legend = TRUE, legend.type = "pie")
 }
 \seealso{
 \code{\link{opc}}

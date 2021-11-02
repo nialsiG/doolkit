@@ -9,12 +9,17 @@ dksetview(orient = "occlusal")
 \arguments{
 \item{orient}{a character string indicating the targeted orientation (default is occlusal)}
 }
+\value{
+sets the orientation of the 'rgl' window.
+}
 \description{
 A function to orient 3d topographical maps using preset values.
 }
 \examples{
-dkmap(dkpongo$OES, inclin(dkpongo$OES), col = "inclin", min.range = 0, max.range = 180)
+dkmap(dkmodel$cusp, inclin(dkmodel$cusp), col = "inclin", min.range = 0, max.range = 180)
 dksetview()
 #possible orientations are "distal", "left", "occlusal", "mesial" and "right"
-
+}
+\seealso{
+\code{\link{dkmap}}
 }

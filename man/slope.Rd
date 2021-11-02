@@ -17,12 +17,15 @@ Compute slope i.e. the angle between triangles and the horizontal plane in degre
 between 0 and 90.
 }
 \examples{
-pongo_slope <- slope(dkpongo$OES)
-summary(pongo_slope)
+slope <- slope(dkmodel$cusp)
+summary(slope)
 
 #render on a map:
-dkmap(dkpongo$OES, slope(dkpongo$OES), col.levels = 9, col = "slope",
+dkmap(dkmodel$cusp, slope, col.levels = 9, col = "slope",
 min.range = 0, max.range = 90, legend = TRUE)
+}
+\references{
+\href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 }
 \seealso{
 \code{\link{inclin}}

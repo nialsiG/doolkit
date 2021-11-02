@@ -17,15 +17,15 @@ Compute inclination i.e. the angle between triangles and the vertical plane in d
 between 0 and 180.
 }
 \examples{
-pongo_inclin <- inclin(dkpongo$OES)
-summary(pongo_inclin)
+inclin <- inclin(dkmodel$cusp)
+summary(inclin)
 
 #render on a map:
-dkmap(dkpongo$OES, inclin(dkpongo$OES), col = "inclin",
+dkmap(dkmodel$cusp, inclin, col = "inclin",
 min.range = 0, max.range = 180, legend = TRUE)
 }
 \references{
-\href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0066142}{Guy et al. (2013)}
+\doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 }
 \seealso{
 \code{\link{slope}}

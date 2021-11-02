@@ -27,16 +27,18 @@ Warning: both options can take up a significant amount of time for large meshes.
 Compute the angularity (delta slope).
 }
 \examples{
-delta_slope <- angularity(dkpongo$OES, ratio = FALSE)
+delta_slope <- angularity(dkmodel$complex, ratio = FALSE)
 summary(delta_slope)
 #angularity ratio:
-delta_slope <- angularity(dkpongo$OES, ratio = TRUE)
-summary(delta_slope)
+delta_slope_ratio <- angularity(dkmodel$complex, ratio = TRUE)
+summary(delta_slope_ratio)
 
 #render on a map:
-dkmap(dkpongo$OES, angularity(dkpongo$OES), col = "slope", legend.lab = "Angularity (°)")
+dkmap(dkmodel$complex, delta_slope, col = "slope",
+legend.lab = "Angularity (°)")
 #angularity ratio:
-dkmap(dkpongo$OES, angularity(dkpongo$OES, ratio = TRUE), col = "slope", legend.lab = "Angularity ratio")
+dkmap(dkmodel$complex, delta_slope_ratio, col = "slope",
+legend.lab = "Angularity ratio")
 
 }
 \references{

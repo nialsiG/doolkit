@@ -16,4 +16,8 @@ dkpongo
 \description{
 A dataset containing the OES and the EDJ surfaces of a \emph{Pongo pygmaeus} upper second molar (SMF-1117)
 }
+\examples{
+Pongo_OES <- dkpongo$OES
+Pongo_EDJ <- dkpongo$EDJ
+}
 \keyword{datasets}
