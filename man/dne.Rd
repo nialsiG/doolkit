@@ -23,6 +23,12 @@ products of polygon normal energies * polygon areas.
 \description{
 Compute the Dirichlet normal energy.
 }
+\details{
+The current algorithm gives a different estimate of DNE when compared with the
+values obtained using the molaR package. Albeit small, this difference likely comes from
+different methods of border selection. The doolkit package uses the function dkborder,
+which accurately selects every polygon sharing a vertex (or more) with the border.
+}
 \examples{
 dne <- dne(dkmodel$complex)
 summary(dkmodel$complex)
@@ -42,4 +48,6 @@ dkmap(dkmodel$complex, dne, legend.type = "log", col = "dne")
 }
 \seealso{
 \code{\link[molaR]{DNE}}
+
+\code{\link{dkborder}}
 }

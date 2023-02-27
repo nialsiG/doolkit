@@ -10,13 +10,13 @@
 #' is_border <- rep(1, Rvcg::nfaces(dkmodel$cusp))
 #' is_border[border] <- 2
 #' dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00"), col.levels = 2, legend = FALSE,
-#' scalebar = FALSE)
+#' scalebar = FALSE, smooth = FALSE)
 #'
 #' # Compare with vcgBorder from the R package Rvcg, in blue:
 #' vcgborder <- which(Rvcg::vcgBorder(dkmodel$cusp)$borderit == TRUE)
 #' is_border[vcgborder] <- 3
 #' dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00", "#56B4E9"), col.levels = 3,
-#' legend = FALSE, scalebar = FALSE)
+#' legend = FALSE, scalebar = FALSE, smooth = FALSE)
 #' #As you can see, it all depends on what you want to select!
 #'
 #' @export
@@ -68,12 +68,12 @@ dkborder <- function(mesh){
 dkcrop <- function(mesh, y){
   # Perform various checks:
   if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
-  if (!is.vector(y) & !is.integer(y) & class(y) != "polygon.network") stop("y should be a vector of integers or an object of class 'polygon.network'")
+  if (!is.vector(y) & !is.integer(y) & !isa(y, what = "polygon.network")) stop("y should be a vector of integers or an object of class 'polygon.network'")
   if (is.vector(y)) {
     if(max(y) > Rvcg::nfaces(mesh)) stop(paste("maximum y (", max(y),") is larger than mesh face count (", Rvcg::nfaces(mesh), ")" ))
   }
   # Main job
-  if (class(y) == "polygon.network") y <- y@faces
+  if (isa(y, what = "polygon.network")) y <- y@faces
   Croppedit <- sort(unique(c(mesh$it[, y])))
   Newvb <- mesh$vb[, Croppedit]
   dd <- data.frame(oldits = Croppedit, newits = c(1:length(Croppedit)))
@@ -103,6 +103,7 @@ dkcrop <- function(mesh, y){
 #' @param alpha.faces a numeric vector of indices indicating which faces affected by \code{alpha}
 #' @param alpha.thresh a numeric value indicating a threshold for alpha
 #' @param bbox a logical, if TRUE a bounding box will be displayed around the surface object
+#' @param bg the color to be used for the background. Defaults to "white".
 #' @param cex a numerical value giving the amount by which plotting text and symbols should be magnified
 #' relative to the default. This starts as 1 when a device is opened, and is reset when the layout is
 #' changed, e.g. by setting mfrow.
@@ -133,6 +134,7 @@ dkcrop <- function(mesh, y){
 #' "stack", which corresponds to a stacked vertical legend; "pie" generates a pie-shaped legend and "log" generates
 #' a stacked vertical legend, but does a log transformation of the data (base: e=exp(1)). The "log" is mostly useful
 #' for DNE maps.
+#' @param lit logical, specifying if lighting calculation should take place on geometry
 #' @param main the main title (on top) using font, size (character expansion) and color par(c("font.main", "cex.main", "col.main"))
 #' @param sub sub-title (at bottom) using font, size and color par(c("font.sub", "cex.sub", "col.sub"))
 #' @param max.range optional; the maximal range of the scale
@@ -166,8 +168,8 @@ dkcrop <- function(mesh, y){
 #' legend.lab = "3d Area (mm\U00B2)", orient = "occlusal")
 #' @export
 dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, alpha.thresh = NULL,
-                   col = "slope", col.levels = 100, col.main = "black", col.lab = "black", col.sub = "black", col.axis = "black",
-                   max.range = NULL, min.range = NULL,
+                   bg = "white", col = "slope", col.levels = 100, col.main = "black", col.lab = "black", col.sub = "black", col.axis = "black",
+                   max.range = NULL, min.range = NULL, lit = TRUE,
                    cex = 2, cex.axis = 2, cex.main = 4, cex.sub = 3, cex.lab = 2,
                    family = "sans", font.axis = 1, font.lab = 2, font.main = 3, font.sub = 2, main = "", sub = "",
                    legend = TRUE, legend.lab = "y", legend.type = "stack", windowRect = NULL,
@@ -175,9 +177,9 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 
   # Perform various checks:
   if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
-  if (class(y) != "numeric" | !is.vector(y)) stop("y must be a numeric vector")
+  if (!isa(y, what = "numeric") | !is.vector(y)) stop("y must be a numeric vector")
   if (!is.null(alpha.faces) & !is.null(alpha.thresh)) stop("use either alpha.faces or alpha.thresh")
-  if (!is.null(alpha.faces) & (class(alpha.faces) != "integer" | !is.vector(alpha.faces))) stop("alpha.faces must be a vector of integers")
+  if (!is.null(alpha.faces) & (!isa(alpha.faces, what = "integer") | !is.vector(alpha.faces))) stop("alpha.faces must be a vector of integers")
   # Define colors
   Colrange <- col
   if (isTRUE(Colrange == "angularity")) Colrange <- c("white", "black")
@@ -231,29 +233,32 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
     mesh <- doolkit::dkorigin(mesh)
   }
   # ...3dmap
-  rgl::shade3d(mesh, alpha = alpha.tmp, color = col.tmp, meshColor = "faces", ptsize = 3, shininess = 0, smooth = smooth)
+  rgl::shade3d(mesh, alpha = alpha.tmp, color = col.tmp, meshColor = "faces", ptsize = 3, shininess = 0, smooth = smooth, lit = lit)
 
-  # Light: 3 points lightning (https://fr.wikipedia.org/wiki/%C3%89clairage_trois_points)
-  rgl::rgl.clear("lights") #sets the lights off
+  if (lit) {
+    # Light: 3 points lightning (https://fr.wikipedia.org/wiki/%C3%89clairage_trois_points)
+    rgl::clear3d("lights") #sets the lights off
     ##key light
     rgl::light3d(specular = "black", diffuse = "grey50", ambient = "grey50", theta = 330, phi = 330)
     ##fill light
     rgl::light3d(specular = "black", diffuse = "grey60", ambient = "grey60", theta = 60, phi = 330)
     ##back light
     rgl::light3d(specular = "black", diffuse = "grey75", ambient = "grey50", theta = 315, phi = 45)
+  }
+
 
   # Options
   # ...Legend
-  if(legend == TRUE) {
-    if(legend.type == "stack"){
+  if (legend == TRUE) {
+    if (legend.type == "stack") {
       plotx <- c(3, rep(0, col.levels*100))
       ploty <- c(min(Levels), seq(min(Levels), max(Levels), length.out = col.levels*100))
       # ...function to make the bg
       bg.make <- function(){
         oldpar <- graphics::par(no.readonly = TRUE)
         on.exit(graphics::par(oldpar))
-        graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0))
-        graphics::plot(x = plotx, y = ploty, pch = 151, bty = "n", xaxs = "r", xaxt = "n",
+        graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0), bg = bg)
+        graphics::plot(x = plotx, y = ploty, pch = 95, bty = "n", xaxs = "r", xaxt = "n",
                        col = c("transparent", rep(Colpalette, each = 100)),
                        xlab = "", ylab = legend.lab, main = main, sub = sub,
                        col.main = col.main, col.axis = col.axis, col.lab = col.lab, col.sub = col.sub,
@@ -270,8 +275,8 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
       bg.make <- function(){
         oldpar <- graphics::par(no.readonly = TRUE)
         on.exit(graphics::par(oldpar))
-        graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0), ylog = TRUE)
-        graphics::plot(x = plotx, y = ploty, pch = 151, bty = "n", xaxs = "r", xaxt = "n",
+        graphics::par(mar = c(3 + cex.sub, 3 + cex.lab + cex.axis, 3 + cex.main, 0), ylog = TRUE, bg = bg)
+        graphics::plot(x = plotx, y = ploty, pch = 95, bty = "n", xaxs = "r", xaxt = "n",
                        col = c("transparent", rep(Colpalette, each = 100)),
                        xlab = "", ylab = paste("log(", legend.lab, ")", sep = ""), main = main, sub = sub,
                        col.main = col.main, col.axis = col.axis, col.lab = col.lab, col.sub = col.sub,
@@ -288,7 +293,7 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
         #... title
         oldpar <- graphics::par(no.readonly = TRUE)
         on.exit(graphics::par(oldpar))
-        graphics::par(mar = c(3 + cex.sub, 3 + (3 * cex), 3 + cex.main, 0), plt = c(0.15, 0.85, 0.15, 0.85))
+        graphics::par(mar = c(3 + cex.sub, 3 + (3 * cex), 3 + cex.main, 0), plt = c(0.15, 0.85, 0.15, 0.85), bg = bg)
         graphics::plot(1, 1, col = "white", main = main, font.main = font.main, cex.main = cex.main, col.main = col.main,
                        sub = sub, font.sub = font.sub, cex.sub = cex.sub, col.sub = col.sub,
                        family = family, xaxt = "n", yaxt = "n", bty = "n")
@@ -414,6 +419,7 @@ dkprofile <- function (x, type = 'cartesian', xlab = paste("cumulated frequency 
 #' dkmap(leveled, doolkit::elev(leveled), col = "elev", legend.lab = "Elevation (mm)")
 #' @export
 dkorigin <- function(mesh){
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   Mesh <- mesh
   Mesh$vb[3, ] <- Mesh$vb[3, ] - min(mesh$vb[3, ])
   return(Mesh)
@@ -426,7 +432,8 @@ dkorigin <- function(mesh){
 #' @return sets the orientation of the 'rgl' window.
 #' @seealso \code{\link{dkmap}}
 #' @examples
-#' dkmap(dkmodel$cusp, inclin(dkmodel$cusp), col = "inclin", min.range = 0, max.range = 180)
+#' inclinCusp <- inclin(dkmodel$cusp)
+#' dkmap(dkmodel$cusp, inclinCusp, col = "inclin", min.range = 0, max.range = 180)
 #' dksetview()
 #' #possible orientations are "distal", "left", "occlusal", "mesial" and "right"
 #' @export

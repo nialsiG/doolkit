@@ -19,6 +19,16 @@ A single 2D surface area value, corresponding to the footprint of the mesh.
 \description{
 Compute the area of a 2d projection on the (xy) plane.
 }
+\details{
+This function can assess 2D surface area of the projection of a mesh on the (xy) plane.
+The projection is assimilated to a hull, which can be a convex hull
+(see \code{\link[grDevices]{chull}}) or a concave hull
+(see \code{\link[concaveman]{concaveman}}). Note that if your mesh is a combination
+of two or more discontinuous surfaces (e.g., isolated cusps), you should not use
+either approach.
+As of version 1.42.2, the concave hull fails intermittently on Mac systems, so the function
+defaults to convex hulls (on other systems, it defaults to concave hulls)
+}
 \examples{
 #The following objects should have the exact same footprints:
 area2d(dkmodel$basin)

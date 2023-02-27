@@ -1,5 +1,18 @@
 # Package dependencies:
-#' @importFrom methods new
+#' @importFrom concaveman concaveman
+#' @importFrom igraph graph_from_edgelist
+#' @importFrom igraph components
+#' @importFrom Morpho facenormals
+#' @importFrom Morpho meshDist
+#' @import ggplot2
+#' @import methods
+#' @import MASS
+#' @import rgl
+#' @import Rvcg
+#' @import sp
+#' @import tis
+#' @import usethis
+#'
 usethis::use_package("concaveman", type = "Imports")
 usethis::use_package("ggplot2", type = "Imports")
 usethis::use_package("igraph", type = "Imports")

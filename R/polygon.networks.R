@@ -17,7 +17,7 @@ polygon.network <- methods::setClass("polygon.network", slots = c(membership = "
 #' @description From a selected variable y, identifies patches of adjacent polygons
 #' that share a given range of y values. These patches are called ’polygon networks’.
 #' @param mesh object of class mesh3d
-#' @param y a vector of values to be used to select polygons
+#' @param y a vector of indices to be used to select polygons
 #' @param lwr.limit the lower range of values to be selected from y
 #' @param upr.limit the upper range of values to be selected from y
 #' @param min.size the minimum amount of polygons defining a cluster. Default is set to 3.
@@ -49,14 +49,6 @@ polygon.network <- methods::setClass("polygon.network", slots = c(membership = "
 #' alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.8), alpha = 0.3,
 #' alpha.above = FALSE)
 #'
-#' valleys <- poly.network(dkmodel$complex, Rvcg::vcgCurve(dkmodel$complex)$meanitmax,
-#' upr.limit = quantile(Rvcg::vcgCurve(dkmodel$complex)$meanitmax, 0.2), min.size = 10)
-#' doolkit::dkmap(mesh = dkmodel$complex, y = doolkit::arc(dkmodel$complex,
-#' range = c(-20, 20)), col = "arc", col.levels = 256, min.range = -20,
-#' max.range = 20, orient = "occlusal", legend.lab = "ARC",
-#'  alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.2), alpha = 0.3,
-#'  alpha.above = TRUE)
-#'
 #' #Orientation and surface of patches:
 #' patch_orient <- data.frame(bin = NULL, patch = NULL, size = NULL, surface = NULL)
 #' for (i in 1:8) {
@@ -80,6 +72,9 @@ polygon.network <- methods::setClass("polygon.network", slots = c(membership = "
 #'
 #' @export
 poly.network <- function(mesh, y, lwr.limit = stats::quantile(y, 0.75), upr.limit = stats::quantile(y, 1), min.size = 3) {
+  # Perform various checks:
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(y, what = "numeric") | !is.vector(y)) stop("y must be a numeric vector")
   # edgelist of faces adjacent to at least another one (excludes borders)
   Edges <- Rvcg::vcgGetEdge(mesh, unique = FALSE)
   Edgelist <- t(matrix(Edges$facept[Edges$border == 0], nrow = 2))

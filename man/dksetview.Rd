@@ -16,7 +16,8 @@ sets the orientation of the 'rgl' window.
 A function to orient 3d topographical maps using preset values.
 }
 \examples{
-dkmap(dkmodel$cusp, inclin(dkmodel$cusp), col = "inclin", min.range = 0, max.range = 180)
+inclinCusp <- inclin(dkmodel$cusp)
+dkmap(dkmodel$cusp, inclinCusp, col = "inclin", min.range = 0, max.range = 180)
 dksetview()
 #possible orientations are "distal", "left", "occlusal", "mesial" and "right"
 }

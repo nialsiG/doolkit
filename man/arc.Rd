@@ -24,7 +24,9 @@ Compute a scale-free estimate of mean curvature.
 \details{
 Area-relative curvature (ARC) is obtained by dividing the mean curvature of each triangle
 by the mean curvature of an hemisphere, the surface area of which is the same as the surface area
-of the total mesh object. As a result, ARC is a scale-free estimate of surface curvature. It can
+of the total mesh object. Coincidentally, the surface area of a hemisphere is linked to
+its mean curvature by the following function: 2.4481 * 1 / square root(surface area)
+As a result, ARC is a scale-free estimate of surface curvature. It can
 be used to estimate the sharpness of a mesh.
 }
 \examples{
