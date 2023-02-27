@@ -31,8 +31,8 @@
 #' @export
 angularity <- function(mesh, ratio = FALSE){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
-  if (is.null(mesh$normals)) mesh$normals <- Rvcg::vcgUpdateNormals(mesh, silent = TRUE)
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
+  if (is.null(mesh$normals)) mesh <- Rvcg::vcgUpdateNormals(mesh, silent = TRUE)
   # Main job
   # ...Get slope (or ratio) of the mesh
   Normals <- mesh$normals
@@ -62,7 +62,9 @@ angularity <- function(mesh, ratio = FALSE){
 #' @return A numeric vector of area-relative curvature values for all the polygons of the mesh.
 #' @details Area-relative curvature (ARC) is obtained by dividing the mean curvature of each triangle
 #' by the mean curvature of an hemisphere, the surface area of which is the same as the surface area
-#' of the total mesh object. As a result, ARC is a scale-free estimate of surface curvature. It can
+#' of the total mesh object. Coincidentally, the surface area of a hemisphere is linked to
+#' its mean curvature by the following function: 2.4481 * 1 / square root(surface area)
+#' As a result, ARC is a scale-free estimate of surface curvature. It can
 #' be used to estimate the sharpness of a mesh.
 #' @examples
 #' curvature <- arc(dkmodel$complex)
@@ -86,7 +88,7 @@ angularity <- function(mesh, ratio = FALSE){
 #' @export
 arc <- function (mesh, range = c(0.01, 0.99)){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Get mean curvature
   Curv <- Rvcg::vcgCurve(mesh)$meanitmax
@@ -101,8 +103,10 @@ arc <- function (mesh, range = c(0.01, 0.99)){
   Curv.theo <- 2.4481 * (1 / sqrt(Rvcg::vcgArea(mesh)))
   Arc <- Curv/Curv.theo
   # ...Absolute truncature
-  if (range[1] < 0) Arc[Arc < range[1]] <- range[1]
-  if (range[2] > 1) Arc[Arc > range[2]] <- range[2]
+  if (range[1] < 0 || range[2] > 1) {
+    Arc[Arc < range[1]] <- range[1]
+    Arc[Arc > range[2]] <- range[2]
+  }
   return(Arc)
 }
 
@@ -114,6 +118,14 @@ arc <- function (mesh, range = c(0.01, 0.99)){
 #' 'convex' (see \code{\link[grDevices]{chull}}),
 #' or 'concave' (see \code{\link[concaveman]{concaveman}}). The default method is 'concave'.
 #' @return A single 2D surface area value, corresponding to the footprint of the mesh.
+#' @details This function can assess 2D surface area of the projection of a mesh on the (xy) plane.
+#' The projection is assimilated to a hull, which can be a convex hull
+#' (see \code{\link[grDevices]{chull}}) or a concave hull
+#' (see \code{\link[concaveman]{concaveman}}). Note that if your mesh is a combination
+#' of two or more discontinuous surfaces (e.g., isolated cusps), you should not use
+#' either approach.
+#' As of version 1.42.2, the concave hull fails intermittently on Mac systems, so the function
+#' defaults to convex hulls (on other systems, it defaults to concave hulls)
 #' @seealso \code{\link{rfi}}
 #' @examples
 #' #The following objects should have the exact same footprints:
@@ -140,7 +152,9 @@ arc <- function (mesh, range = c(0.01, 0.99)){
 #' @export
 area2d <- function(mesh, method = "concave"){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
+  if (method != "concave" && method != "convex") stop("method must be 'concave' or 'convex'")
+  if (.Platform$OS.type == "mac") method = "convex"
   # Main job
   # ...Get the (x,y) coordinates of all the vertices
   FootprintVerts <- t(mesh$vb[1:2, ])
@@ -180,7 +194,12 @@ area2d <- function(mesh, method = "concave"){
 #' products of polygon normal energies * polygon areas.
 #' @references \doi{10.1002/ajpa.21489}{Bunn et al. (2011)}
 #' @references \doi{10.1007/s10914-016-9326-0}{Pampush et al. (2016)}
+#' @details The current algorithm gives a different estimate of DNE when compared with the
+#' values obtained using the molaR package. Albeit small, this difference likely comes from
+#' different methods of border selection. The doolkit package uses the function dkborder,
+#' which accurately selects every polygon sharing a vertex (or more) with the border.
 #' @seealso \code{\link[molaR]{DNE}}
+#' @seealso \code{\link{dkborder}}
 #' @examples
 #' dne <- dne(dkmodel$complex)
 #' summary(dkmodel$complex)
@@ -195,8 +214,9 @@ area2d <- function(mesh, method = "concave"){
 #' @export
 dne <- function(mesh, range = 0.999, total = FALSE){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
-  if (is.null(mesh$normals)) mesh <- Rvcg::vcgUpdateNormals(mesh, silent = TRUE)
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
+  # Update normals
+  mesh <- Rvcg::vcgUpdateNormals(mesh, type = 0, silent = TRUE)
   # Main job
   Dne <- NULL
   for (i in 1:length(mesh$it[1, ])){
@@ -248,7 +268,7 @@ dne <- function(mesh, range = 0.999, total = FALSE){
 #' @export
 elev <- function(mesh, origin = TRUE){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Set back origin to 0 if origin is TRUE:
   if (origin) {
@@ -276,8 +296,7 @@ elev <- function(mesh, origin = TRUE){
 #' @export
 hypso <- function(mesh, origin = TRUE){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
-
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Set back origin to 0
   if (origin) {
@@ -317,8 +336,7 @@ hypso <- function(mesh, origin = TRUE){
 #' @export
 inclin <- function(mesh){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
-
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Get normals
   Normals <- Morpho::facenormals(mesh)$normals
@@ -368,8 +386,8 @@ inclin <- function(mesh){
 #' @export
 oedist <- function(oes, edj, ray = FALSE){
   # Perform various checks:
-  if (class(oes) != "mesh3d") stop("oes must be an object of class 'mesh3d'")
-  if (class(edj) != "mesh3d") stop("edj must be an object of class 'mesh3d'")
+  if (!isa(oes, what = "mesh3d")) stop("oes must be an object of class 'mesh3d'")
+  if (!isa(edj, what = "mesh3d")) stop("edj must be an object of class 'mesh3d'")
   # Main job
   # ...Compute absolute shortest distances FROM vertex TO second mesh
   VertDist <- abs(Morpho::meshDist(oes, edj, distvec = NULL, sign = FALSE, plot = FALSE, ray = ray)$dists)
@@ -408,7 +426,7 @@ oedist <- function(oes, edj, ray = FALSE){
 #' @export
 opc <- function(mesh, bins = 8, min.size = 3, rotation = 0){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...A function to count patches:
   patchcount <- function(mesh, bins, min.size, rotation) {
@@ -473,7 +491,7 @@ opc <- function(mesh, bins = 8, min.size = 3, rotation = 0){
 #' @export
 opcr <- function(mesh, bins = 8, min.size = 3){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   Opcr <- list(opcr = 0, rotations = data.frame(Rotation = 0, Opc = 0))
   for (j in (1:bins)) {
@@ -505,7 +523,7 @@ opcr <- function(mesh, bins = 8, min.size = 3){
 #' @export
 orient <- function(mesh){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Get face normals
   Normals <- Morpho::facenormals(mesh)$normals
@@ -526,19 +544,24 @@ orient <- function(mesh){
 #' @param hull the method used to compute the hull of the 2d projection, either 'convex' or 'concave'.
 #' The default method is 'convex'. See \code{\link{area2d}}
 #' @return A single relief index value.
+#' @details As of version 1.42.2, the concave hull fails intermittently on Mac systems, so the function
+#' defaults to convex hulls (on other systems, it defaults to concave hulls).
 #' @references \doi{10.1016/j.jhevol.2008.08.002}{Boyer (2008)}
 #' \doi{10.1371/journal.pone.0066142}{Guy et al. (2013)}
 #' \href{https://palaeo-electronica.org/2000_1/gorilla/issue1_00.htm}{Ungar and Williamson (2000)}
 #' @seealso \code{\link{area2d}}
 #' @seealso \code{\link[molaR]{RFI}}
 #' @examples
-#' rfi <- rfi(dkmodel$cusp, method = "Ungar")
-#' lrfi <- rfi(dkmodel$cusp, method = "Boyer")
+#' rfi <- rfi(dkmodel$cusp, method = "Ungar", hull = "convex")
+#' lrfi <- rfi(dkmodel$cusp, method = "Boyer", hull = "convex")
 #' gamma <- rfi(dkmodel$cusp, method = "Guy")
 #' @export
 rfi <- function(mesh, method = "Ungar", hull = "concave"){
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
+  if (method != "Ungar" && method != "Boyer" && method != "Guy") stop("method must be 'Boyer', 'Ungar' or 'Guy'")
+  if (hull != "concave" && hull != "convex") stop("method must be 'concave' or 'convex'")
+  if (.Platform$OS.type == "mac") hull = "convex"
   # Main job
   if (method == "Ungar"){
     Surf3D <- Rvcg::vcgArea(mesh)
@@ -578,8 +601,8 @@ rfi <- function(mesh, method = "Ungar", hull = "concave"){
 #' @export
 rrate <- function(uncropped, cropped, origin = TRUE){
   # Perform various checks:
-  if (class(uncropped) != "mesh3d") stop("uncropped must be an object of class 'mesh3d'")
-  if (class(cropped) != "mesh3d") stop("cropped must be an object of class 'mesh3d'")
+  if (!isa(uncropped, what = "mesh3d")) stop("uncropped must be an object of class 'mesh3d'")
+  if (!isa(cropped, what = "mesh3d")) stop("cropped must be an object of class 'mesh3d'")
   # Main job
   # ...Set back origin to 0
   if (origin) {
@@ -623,7 +646,7 @@ rrate <- function(uncropped, cropped, origin = TRUE){
 #' @export
 shape.index <- function(mesh, origin = TRUE) {
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Set back origin to 0
   if (origin) {
@@ -658,7 +681,7 @@ shape.index <- function(mesh, origin = TRUE) {
 #' @export
 slope <- function(mesh) {
   # Perform various checks:
-  if (class(mesh) != "mesh3d") stop("mesh must be an object of class 'mesh3d'")
+  if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   # Main job
   # ...Get surface normals
   Normals <- Morpho::facenormals(mesh)$normals

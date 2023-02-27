@@ -22,13 +22,13 @@ border <- dkborder(dkmodel$cusp)
 is_border <- rep(1, Rvcg::nfaces(dkmodel$cusp))
 is_border[border] <- 2
 dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00"), col.levels = 2, legend = FALSE,
-scalebar = FALSE)
+scalebar = FALSE, smooth = FALSE)
 
 # Compare with vcgBorder from the R package Rvcg, in blue:
 vcgborder <- which(Rvcg::vcgBorder(dkmodel$cusp)$borderit == TRUE)
 is_border[vcgborder] <- 3
 dkmap(dkmodel$cusp, is_border, col = c("white", "#E69F00", "#56B4E9"), col.levels = 3,
-legend = FALSE, scalebar = FALSE)
+legend = FALSE, scalebar = FALSE, smooth = FALSE)
 #As you can see, it all depends on what you want to select!
 
 }

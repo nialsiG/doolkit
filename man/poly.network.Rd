@@ -15,7 +15,7 @@ poly.network(
 \arguments{
 \item{mesh}{object of class mesh3d}
 
-\item{y}{a vector of values to be used to select polygons}
+\item{y}{a vector of indices to be used to select polygons}
 
 \item{lwr.limit}{the lower range of values to be selected from y}
 
@@ -56,14 +56,6 @@ range = c(-20, 20)), col = "arc", col.levels = 256, min.range = -20,
 max.range = 20, orient = "occlusal", legend.lab = "ARC",
 alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.8), alpha = 0.3,
 alpha.above = FALSE)
-
-valleys <- poly.network(dkmodel$complex, Rvcg::vcgCurve(dkmodel$complex)$meanitmax,
-upr.limit = quantile(Rvcg::vcgCurve(dkmodel$complex)$meanitmax, 0.2), min.size = 10)
-doolkit::dkmap(mesh = dkmodel$complex, y = doolkit::arc(dkmodel$complex,
-range = c(-20, 20)), col = "arc", col.levels = 256, min.range = -20,
-max.range = 20, orient = "occlusal", legend.lab = "ARC",
- alpha.thresh = quantile(doolkit::arc(dkmodel$complex), 0.2), alpha = 0.3,
- alpha.above = TRUE)
 
 #Orientation and surface of patches:
 patch_orient <- data.frame(bin = NULL, patch = NULL, size = NULL, surface = NULL)

@@ -11,6 +11,7 @@ dkmap(
   alpha.above = TRUE,
   alpha.faces = NULL,
   alpha.thresh = NULL,
+  bg = "white",
   col = "slope",
   col.levels = 100,
   col.main = "black",
@@ -19,6 +20,7 @@ dkmap(
   col.axis = "black",
   max.range = NULL,
   min.range = NULL,
+  lit = TRUE,
   cex = 2,
   cex.axis = 2,
   cex.main = 4,
@@ -57,6 +59,8 @@ if FALSE their y value should be below \code{alpha.thresh}}
 
 \item{alpha.thresh}{a numeric value indicating a threshold for alpha}
 
+\item{bg}{the color to be used for the background. Defaults to "white".}
+
 \item{col}{a vector of colors for texturing the polygons according to y}
 
 \item{col.levels}{the number of color levels}
@@ -72,6 +76,8 @@ if FALSE their y value should be below \code{alpha.thresh}}
 \item{max.range}{optional; the maximal range of the scale}
 
 \item{min.range}{optional; the minimal range of the scale}
+
+\item{lit}{logical, specifying if lighting calculation should take place on geometry}
 
 \item{cex}{a numerical value giving the amount by which plotting text and symbols should be magnified
 relative to the default. This starts as 1 when a device is opened, and is reset when the layout is

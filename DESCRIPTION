@@ -1,6 +1,6 @@
 Package: doolkit
 Title: Exploration of Dental Surface Topography
-Version: 1.0.0
+Version: 1.42.2
 Authors@R: c(
     person(given = "Ghislain", family = "Thiery", role = c("aut", "cre"), email = "ghislain.thiery@ntymail.com"),
     person(given = "Franck", family = "Guy", role = c("aut"), email = "franck.guy@univ-poitiers.fr"),
@@ -29,8 +29,8 @@ Description: Tools for exploring the topography of 3d triangle meshes.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.1.0)
-RoxygenNote: 7.1.2
+Depends: R (>= 4.2.0)
+RoxygenNote: 7.2.1
 Imports: 
     ggplot2,
     igraph,
