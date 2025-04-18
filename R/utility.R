@@ -359,7 +359,7 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 #'
 #' #Enamel-dentine distance (pachymetric) profile:
 #' dkprofile(oedist(dkpongo$OES, dkpongo$EDJ),
-#' main = "Elevation profile - Pongo pygmaeus", ylab = "Distance (%)",
+#' main = "Enamel-dentine distance profile - Pongo pygmaeus", ylab = "Distance (%)",
 #' col = "#F0E442", linetype = "dashed")
 #'
 #' #Curvature (kurtometric) profile:
