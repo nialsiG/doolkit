@@ -30,7 +30,6 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.2.0)
-
 RoxygenNote: 7.3.2
 BugReports: https://github.com/nialsiG/doolkit/issues
 Imports: 
