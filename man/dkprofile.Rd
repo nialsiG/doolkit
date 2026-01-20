@@ -51,7 +51,7 @@ ylab = "Elevation (\%)", col = "#0072B2", linetype = "solid")
 
 #Enamel-dentine distance (pachymetric) profile:
 dkprofile(oedist(dkpongo$OES, dkpongo$EDJ),
-main = "Elevation profile - Pongo pygmaeus", ylab = "Distance (\%)",
+main = "Enamel-dentine distance profile - Pongo pygmaeus", ylab = "Distance (\%)",
 col = "#F0E442", linetype = "dashed")
 
 #Curvature (kurtometric) profile:

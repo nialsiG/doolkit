@@ -12,6 +12,7 @@
 #' @import sp
 #' @import tis
 #' @import usethis
+#' @import openxlsx
 #'
 usethis::use_package("concaveman", type = "Imports")
 usethis::use_package("ggplot2", type = "Imports")
@@ -24,3 +25,4 @@ usethis::use_package("Rvcg", type = "Imports")
 usethis::use_package("sp", type = "Imports")
 usethis::use_package("tis", type = "Imports")
 usethis::use_package("usethis", type = "Imports")
+usethis::use_package("openxlsx", type = "Imports")

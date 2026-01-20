@@ -9,7 +9,7 @@ sample_topography(meshes, functions)
 \arguments{
 \item{meshes}{A list of objects of class mesh3d}
 
-\item{functions}{A list of functions to apply}
+\item{functions}{A list of functions to apply; these functions should accept a 'mesh' argument and return a single value}
 }
 \value{
 A data frame.
@@ -18,5 +18,13 @@ A data frame.
 Computes a range of dental topography variables for a range of meshes.
 }
 \examples{
-#
+## Prepare meshes
+meshes_right <- list("pongo_OES" = doolkit::dkpongo$OES, "pongo_EDJ" = doolkit::dkpongo$EDJ)
+## Prepare functions
+Mss <- function(mesh) return(mean(doolkit::slope(mesh)))
+Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
+Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
+fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
+## Batch sample analysis
+sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
 }

@@ -9,7 +9,7 @@ tooth_topography(mesh, functions)
 \arguments{
 \item{mesh}{An object of class mesh3d}
 
-\item{functions}{A list of functions to apply}
+\item{functions}{A list of functions to apply; these functions should accept a 'mesh' argument and return as many values as the 'mesh' face count}
 }
 \value{
 A data frame.
@@ -18,5 +18,12 @@ A data frame.
 Computes a range of dental topography variables for all triangles of a single mesh.
 }
 \examples{
-#
+## Prepare mesh
+mesh_right <- doolkit::dkpongo$OES
+## Prepare functions
+Slope <- function(mesh) return(doolkit::slope(mesh))
+Rotation <- function(mesh) return(doolkit::orient(mesh))
+fun_list <- list("slope" = Slope, "rotation" = Rotation)
+## Batch tooth analysis
+tooth_topo_dataframe <- doolkit::tooth_topography(mesh_right, fun_list)
 }
