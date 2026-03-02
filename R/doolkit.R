@@ -13,16 +13,11 @@
 #' @import tis
 #' @import usethis
 #' @import openxlsx
-#'
-usethis::use_package("concaveman", type = "Imports")
-usethis::use_package("ggplot2", type = "Imports")
-usethis::use_package("igraph", type = "Imports")
-usethis::use_package("MASS", type = "Imports")
-usethis::use_package("methods", type = "Imports")
-usethis::use_package("Morpho", type = "Imports")
-usethis::use_package("rgl", type = "Imports")
-usethis::use_package("Rvcg", type = "Imports")
-usethis::use_package("sp", type = "Imports")
-usethis::use_package("tis", type = "Imports")
-usethis::use_package("usethis", type = "Imports")
-usethis::use_package("openxlsx", type = "Imports")
+#' @importMethodsFrom foreach
+#' @importFrom foreach foreach
+#' @importFrom foreach %:%
+#' @importFrom foreach %dopar%
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom snow makeSOCKcluster
+#' @importFrom parallel detectCores
+#' @importFrom parallel stopCluster

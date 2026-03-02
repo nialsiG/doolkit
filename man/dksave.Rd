@@ -11,7 +11,7 @@ dksave(df, file, format = ".txt")
 
 \item{file}{The path to which the data.frame must be saved}
 
-\item{format}{The format to which the data frame should be saved, either ".txt", ".csv", ".RDS" or ".xslx" (default is "txt"))}
+\item{format}{The format to which the data frame should be saved, either ".txt", ".csv", ".RDS" or ".xlsx" (default is "txt"))}
 }
 \value{
 A 'format' file saved at the 'path' argument.
@@ -37,9 +37,9 @@ dksave(tooth_topo_dataframe, tmpfile, format = ".csv")
 # ...as .RDS:
 tmpfile <- tempfile("topographic_table", fileext = ".RDS")
 dksave(tooth_topo_dataframe, tmpfile, format = ".RDS")
-# ...as .xslx:
-tmpfile <- tempfile("topographic_table", fileext = ".xslx")
-dksave(tooth_topo_dataframe, tmpfile, format = ".xslx")
+# ...as .xlsx:
+tmpfile <- tempfile("topographic_table", fileext = ".xlsx")
+dksave(tooth_topo_dataframe, tmpfile, format = ".xlsx")
 
 unlink(tmpfile)
 }

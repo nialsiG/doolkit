@@ -33,15 +33,19 @@ Depends: R (>= 4.2.0)
 RoxygenNote: 7.3.2
 BugReports: https://github.com/nialsiG/doolkit/issues
 Imports: 
+    concaveman,
+    doSNOW,
+    foreach,
     ggplot2,
     igraph,
+    MASS,
+    methods,
     Morpho,
+    openxlsx,
+    parallel,
     rgl,
     Rvcg,
+    snow,
     sp,
-    MASS,
     tis,
-    methods,
-    concaveman,
-    usethis,
-    openxlsx
+    usethis

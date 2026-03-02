@@ -13,7 +13,7 @@ dkmap(
   alpha.thresh = NULL,
   bg = "white",
   col = "slope",
-  col.levels = 100,
+  col.levels = NULL,
   col.main = "black",
   col.lab = "black",
   col.sub = "black",
@@ -63,7 +63,7 @@ if FALSE their y value should be below \code{alpha.thresh}}
 
 \item{col}{a vector of colors for texturing the polygons according to y}
 
-\item{col.levels}{the number of color levels}
+\item{col.levels}{the number of color levels, default is the length of 'col'}
 
 \item{col.main}{the color to be used for legend main titles. Defaults to "black".}
 

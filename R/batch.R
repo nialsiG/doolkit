@@ -1,4 +1,4 @@
-# tooth_topography
+# single_mesh_topography
 #' @title tooth_topography
 #' @description Computes a range of dental topography variables for all triangles of a single mesh.
 #' @param mesh An object of class mesh3d
@@ -50,8 +50,8 @@ tooth_topography <- function(mesh, functions){
 #' fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
 #' ## Batch sample analysis
 #' sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
-
 #' @export
+#' @importFrom foreach %dopar%
 sample_topography <- function(meshes, functions){
   # Perform various checks:
   for (mesh in meshes){
@@ -62,20 +62,85 @@ sample_topography <- function(meshes, functions){
   }
   # Prepare dataset
   Result = data.frame("mesh" = names(meshes))
+  # Prepare parallel
+  cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
+  doSNOW::registerDoSNOW(cluster)
   # Main loop
+  # for (mesh in meshes){
+  #   Vector <- vector()
+  #   Vector <- foreach::foreach(i = 1:length(meshes), .combine = "c") %dopar% fun(meshes[[i]])
+  #   Result <- rbind(Result, Vector)
+  # }
+
   for (fun in functions){
     Vector <- vector()
-    for (mesh in meshes){
-      FunResult <- fun(mesh)
-      if (length(FunResult) != 1) stop ("fun must return a single value")
-      Vector <- c(Vector, FunResult)
-    }
+    Vector <- foreach::foreach(i = 1:length(meshes), .combine = "c") %dopar% fun(meshes[[i]])
     Result <- cbind(Result, Vector)
   }
+
+  parallel::stopCluster(cluster)
+
   # Rename columns and return data frame
   colnames(Result) <- c("mesh", names(functions))
   return(Result)
 }
+
+
+# batch.multi----
+#' @title batch.multi
+#' @description Computes a range of dental topography variables for a range of meshes.
+#' @param files A list of surface files; accepted formats are as in RVCG::vcgImport
+#' @param functions A list of functions to apply; these functions should accept a 'mesh' argument and return a single value
+#' @return A data frame.
+#' @seealso \code{\link[Rvcg]{vcgImport}}
+#' @examples
+#' ## Prepare a list of files
+#' meshes_right <- list("pongo_OES" = doolkit::dkpongo$OES, "pongo_EDJ" = doolkit::dkpongo$EDJ)
+#' ## Prepare functions
+#' Mss <- function(mesh) return(mean(doolkit::slope(mesh)))
+#' Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
+#' Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
+#' fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
+#' ## Batch sample analysis
+#' sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
+#' @export
+#' @importFrom foreach %dopar%
+batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
+  # Perform various checks:
+  # for (file in files){
+  #   if (!isa(file, what = "path")) stop("all 'files' must be valid paths")
+  # }
+
+  for (fun in functions){
+    if (!is.function(fun)) stop ("fun must be a valid method")
+  }
+  # Prepare dataset
+  filenames <- sapply(strsplit(basename(files), ".ply"), "[", 1)
+  Result <- data.frame()
+  # Parallel
+  if (do.parallel){
+    cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
+    doSNOW::registerDoSNOW(cluster)
+    for (i in 1:length(files)){
+      mesh <- Rvcg::vcgImport(files[[i]], silent = TRUE)
+      if (!isa(mesh, what = "mesh3d")) stop("all objects in 'meshes' must be of class of class 'mesh3d'")
+      Vector <- c(filenames[i], foreach::foreach(i = 1:length(functions), .combine = "c") %dopar% functions[[i]](mesh))
+      Result <- rbind(Result, Vector)
+    }
+
+    parallel::stopCluster(cluster)
+
+  }
+  # Not parallel
+  else {
+
+  }
+
+  # Rename columns and return data frame
+  colnames(Result) <- c("id", names(functions))
+  return(Result)
+}
+
 
 # dksave----
 #' @title dksave

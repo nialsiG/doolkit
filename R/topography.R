@@ -163,8 +163,8 @@ area2d <- function(mesh, method = "concave"){
     #1 move all coordinates >= 0
     FootprintVerts[, 1] <- FootprintVerts[, 1] - min(FootprintVerts[, 1])
     FootprintVerts[, 2] <- FootprintVerts[, 2] - min(FootprintVerts[, 2])
-    #2 extract the hull using the package aphahull
-    Hull <- concaveman::concaveman(points = FootprintVerts)
+    #2 extract the hull using the package concaveman
+    Hull <- concaveman::concaveman(points = FootprintVerts, 2)
     #3 make a polygon from the points of the hull and measure its area
     Poly <- sp::Polygon(Hull, hole = FALSE)
     Area2D <- Poly@area

@@ -112,7 +112,7 @@ dkcrop <- function(mesh, y){
 #' @param cex.main the magnification to be used for main titles relative to the current setting of cex.
 #' @param cex.sub the magnification to be used for sub-titles relative to the current setting of cex.
 #' @param col a vector of colors for texturing the polygons according to y
-#' @param col.levels the number of color levels
+#' @param col.levels the number of color levels, default is the length of 'col'
 #' @param col.axis the color to be used for legend axis annotation. Defaults to "black".
 #' @param col.lab the color to be used for the legend labels. Defaults to "black".
 #' @param col.main the color to be used for legend main titles. Defaults to "black".
@@ -168,7 +168,7 @@ dkcrop <- function(mesh, y){
 #' legend.lab = "3d Area (mm\U00B2)", orient = "occlusal")
 #' @export
 dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, alpha.thresh = NULL,
-                   bg = "white", col = "slope", col.levels = 100, col.main = "black", col.lab = "black", col.sub = "black", col.axis = "black",
+                   bg = "white", col = "slope", col.levels = NULL, col.main = "black", col.lab = "black", col.sub = "black", col.axis = "black",
                    max.range = NULL, min.range = NULL, lit = TRUE,
                    cex = 2, cex.axis = 2, cex.main = 4, cex.sub = 3, cex.lab = 2,
                    family = "sans", font.axis = 1, font.lab = 2, font.main = 3, font.sub = 2, main = "", sub = "",
@@ -181,17 +181,17 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
   if (!is.null(alpha.faces) & !is.null(alpha.thresh)) stop("use either alpha.faces or alpha.thresh")
   if (!is.null(alpha.faces) & (!isa(alpha.faces, what = "integer") | !is.vector(alpha.faces))) stop("alpha.faces must be a vector of integers")
   # Define colors
-  Colrange <- col
-  if (isTRUE(Colrange == "angularity")) Colrange <- c("white", "black")
-  if (isTRUE(Colrange == "arc")) Colrange <- c("royalblue", "white", "red")
-  if (isTRUE(Colrange == "dne")) Colrange <- c("royalblue", "lightskyblue", rep("olivedrab3", 3), "yellow1", "orange", "red")
-  if (isTRUE(Colrange == "elev")) Colrange <- c("lightgreen","goldenrod1","yellow1","white","white","lightskyblue","dodgerblue4","royalblue")
-  if (isTRUE(Colrange == "inclin")) Colrange <- c("firebrick4","red","orangered","orange","yellow1","olivedrab3","lightseagreen","royalblue","royalblue4","royalblue","lightseagreen","olivedrab3","yellow1","orange","orangered","red","firebrick4")
-  if (isTRUE(Colrange == "oedist")) Colrange <- c("blue","green","yellow","orange","red")
-  if (isTRUE(Colrange == "opc")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
-  if (isTRUE(Colrange == "opcr")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
-  if (isTRUE(Colrange == "orient")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
-  if (isTRUE(Colrange == "slope")) Colrange <- c("royalblue4","royalblue","lightseagreen","olivedrab3","yellow1","orange","orangered","red","firebrick4")
+  if (isTRUE(col == "angularity")) Colrange <- c("white", "black")
+  else if (isTRUE(col == "arc")) Colrange <- c("royalblue", "white", "red")
+  else if (isTRUE(col == "dne")) Colrange <- c("royalblue", "lightskyblue", rep("olivedrab3", 3), "yellow1", "orange", "red")
+  else if (isTRUE(col == "elev")) Colrange <- c("lightgreen","goldenrod1","yellow1","white","white","lightskyblue","dodgerblue4","royalblue")
+  else if (isTRUE(col == "inclin")) Colrange <- c("firebrick4","red","orangered","orange","yellow1","olivedrab3","lightseagreen","royalblue","royalblue4","royalblue","lightseagreen","olivedrab3","yellow1","orange","orangered","red","firebrick4")
+  else if (isTRUE(col == "oedist")) Colrange <- c("blue","green","yellow","orange","red")
+  else if (isTRUE(col == "opc")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
+  else if (isTRUE(col == "opcr")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
+  else if (isTRUE(col == "orient")) Colrange <- c("dodgerblue4","lightskyblue","sienna4","yellow1","red3","plum1","darkgreen","olivedrab3")
+  else if (isTRUE(col == "slope")) Colrange <- c("royalblue4","royalblue","lightseagreen","olivedrab3","yellow1","orange","orangered","red","firebrick4")
+  else Colrange <- col
 
   # ...log transformation if legend type "log"
   if(legend.type == "log"){
@@ -199,6 +199,10 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
     #round -Inf and NA values to the lowest finite value
     y[!is.finite(y)] <- min(y[is.finite(y)])
   }
+
+  # ...define and check col.levels
+  if (is.null(col.levels)) col.levels <- length(Colrange)
+  if (length(col.levels) < length(Colrange)) warning("'col.levels' is smaller than 'col' length, which could result in mismatched colors", noBreaks. = TRUE)
 
   # ...Define color palette of length = col.levels within col
   Colpalette <- grDevices::colorRampPalette(Colrange)(col.levels)
