@@ -110,13 +110,19 @@ batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
   # for (file in files){
   #   if (!isa(file, what = "path")) stop("all 'files' must be valid paths")
   # }
+  if (!is.null(filenames)){
+    if (!is.vector(filenames)) stop("'filenames' must be a vector")
+    else if (length(filenames) != length(files)) stop("'filenames' must have the same length as 'files'")
+  }
+  else filenames <- sapply(strsplit(basename(files), ".ply"), "[", 1)
 
   for (fun in functions){
     if (!is.function(fun)) stop ("fun must be a valid method")
   }
+
   # Prepare dataset
-  filenames <- sapply(strsplit(basename(files), ".ply"), "[", 1)
   Result <- data.frame()
+
   # Parallel
   if (do.parallel){
     cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
@@ -136,8 +142,15 @@ batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
 
   }
 
-  # Rename columns and return data frame
+  # Rename columns
   colnames(Result) <- c("id", names(functions))
+
+  # Rename id
+  if (!is.null(filenames)){
+    print('test')
+    Result[, 1] <- c(filenames)
+  }
+
   return(Result)
 }
 

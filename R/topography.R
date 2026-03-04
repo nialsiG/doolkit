@@ -574,7 +574,7 @@ rfi <- function(mesh, method = "Ungar", hull = "concave"){
     RFI <- log(sqrt(Surf3D)/sqrt(Surf2D))
   }
   if (method == "Guy"){
-    Dataset <- data.frame(Area = Rvcg::vcgArea(mesh), Elevation = doolkit::elev(mesh), Slope = doolkit::slope(mesh))
+    Dataset <- data.frame(Area = Rvcg::vcgArea(mesh, perface = TRUE)$pertriangle, Elevation = doolkit::elev(mesh), Slope = doolkit::slope(mesh))
     RFI <- (sum(Dataset$Area[Dataset$Slope<45])*mean(Dataset$Elevation[Dataset$Slope<45])) / (sum(Dataset$Area[Dataset$Slope>45])*mean(Dataset$Elevation[Dataset$Slope>45]))
   }
   return(RFI)
