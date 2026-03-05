@@ -4,7 +4,7 @@
 \alias{batch.multi}
 \title{batch.multi}
 \usage{
-batch.multi(files, functions, do.parallel = TRUE)
+batch.multi(files, functions, filenames = NULL, do.parallel = TRUE)
 }
 \arguments{
 \item{files}{A list of surface files; accepted formats are as in RVCG::vcgImport}
@@ -26,7 +26,7 @@ Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
 Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
 fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
 ## Batch sample analysis
-sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
+sample_topo_dataframe <- doolkit::batch.multi(meshes_right, fun_list)
 }
 \seealso{
 \code{\link[Rvcg]{vcgImport}}

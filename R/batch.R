@@ -1,20 +1,20 @@
-# single_mesh_topography
-#' @title tooth_topography
+# batch.single
+#' @title batch.single
 #' @description Computes a range of dental topography variables for all triangles of a single mesh.
 #' @param mesh An object of class mesh3d
 #' @param functions A list of functions to apply; these functions should accept a 'mesh' argument and return as many values as the 'mesh' face count
 #' @return A data frame.
 #' @examples
 #' ## Prepare mesh
-#' mesh_right <- doolkit::dkpongo$OES
+#' my_mesh <- doolkit::dkmodel$cusp
 #' ## Prepare functions
 #' Slope <- function(mesh) return(doolkit::slope(mesh))
 #' Rotation <- function(mesh) return(doolkit::orient(mesh))
 #' fun_list <- list("slope" = Slope, "rotation" = Rotation)
-#' ## Batch tooth analysis
-#' tooth_topo_dataframe <- doolkit::tooth_topography(mesh_right, fun_list)
+#' ## Single mesh batch analysis
+#' single_mesh_topography <- doolkit::batch.single(my_mesh, fun_list)
 #' @export
-tooth_topography <- function(mesh, functions){
+batch.single <- function(mesh, functions){
   # Perform various checks:
   if (!isa(mesh, what = "mesh3d")) stop("mesh must be an object of class 'mesh3d'")
   for (fun in functions){
@@ -34,57 +34,6 @@ tooth_topography <- function(mesh, functions){
   return(Result)
 }
 
-# sample_topography----
-#' @title sample_topography
-#' @description Computes a range of dental topography variables for a range of meshes.
-#' @param meshes A list of objects of class mesh3d
-#' @param functions A list of functions to apply; these functions should accept a 'mesh' argument and return a single value
-#' @return A data frame.
-#' @examples
-#' ## Prepare meshes
-#' meshes_right <- list("pongo_OES" = doolkit::dkpongo$OES, "pongo_EDJ" = doolkit::dkpongo$EDJ)
-#' ## Prepare functions
-#' Mss <- function(mesh) return(mean(doolkit::slope(mesh)))
-#' Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
-#' Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
-#' fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
-#' ## Batch sample analysis
-#' sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
-#' @export
-#' @importFrom foreach %dopar%
-sample_topography <- function(meshes, functions){
-  # Perform various checks:
-  for (mesh in meshes){
-    if (!isa(mesh, what = "mesh3d")) stop("all objects in 'meshes' must be of class of class 'mesh3d'")
-  }
-  for (fun in functions){
-    if (!is.function(fun)) stop ("fun must be a valid method")
-  }
-  # Prepare dataset
-  Result = data.frame("mesh" = names(meshes))
-  # Prepare parallel
-  cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
-  doSNOW::registerDoSNOW(cluster)
-  # Main loop
-  # for (mesh in meshes){
-  #   Vector <- vector()
-  #   Vector <- foreach::foreach(i = 1:length(meshes), .combine = "c") %dopar% fun(meshes[[i]])
-  #   Result <- rbind(Result, Vector)
-  # }
-
-  for (fun in functions){
-    Vector <- vector()
-    Vector <- foreach::foreach(i = 1:length(meshes), .combine = "c") %dopar% fun(meshes[[i]])
-    Result <- cbind(Result, Vector)
-  }
-
-  parallel::stopCluster(cluster)
-
-  # Rename columns and return data frame
-  colnames(Result) <- c("mesh", names(functions))
-  return(Result)
-}
-
 
 # batch.multi----
 #' @title batch.multi
@@ -101,23 +50,26 @@ sample_topography <- function(meshes, functions){
 #' Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
 #' Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
 #' fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
-#' ## Batch sample analysis
-#' sample_topo_dataframe <- doolkit::sample_topography(meshes_right, fun_list)
+#' ## Multiple meshes batch analysis
+#' multi_mesh_topography <- doolkit::batch.multi(meshes_right, fun_list)
 #' @export
 #' @importFrom foreach %dopar%
 batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
   # Perform various checks:
-  # for (file in files){
-  #   if (!isa(file, what = "path")) stop("all 'files' must be valid paths")
-  # }
   if (!is.null(filenames)){
     if (!is.vector(filenames)) stop("'filenames' must be a vector")
     else if (length(filenames) != length(files)) stop("'filenames' must have the same length as 'files'")
   }
-  else filenames <- sapply(strsplit(basename(files), ".ply"), "[", 1)
+  else {
+    filenames <- sapply(strsplit(basename(files), "\\.(obj|ply|stl)$"), "[", 1)
+  }
 
-  for (fun in functions){
+  for (i in 1:length(functions)){
+    fun <- functions[[i]]
     if (!is.function(fun)) stop ("fun must be a valid method")
+    TempResult <- fun(doolkit::dkmodel$cusp)
+    if (is.null(names(functions)[i])) stop("all elements in the 'functions' list must be named")
+    if (length(TempResult) != 1) stop ("functions passed to the 'functions' argument must return a single value")
   }
 
   # Prepare dataset
@@ -127,27 +79,31 @@ batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
   if (do.parallel){
     cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
     doSNOW::registerDoSNOW(cluster)
-    for (i in 1:length(files)){
-      mesh <- Rvcg::vcgImport(files[[i]], silent = TRUE)
-      if (!isa(mesh, what = "mesh3d")) stop("all objects in 'meshes' must be of class of class 'mesh3d'")
+    for (file in files){
+      mesh <- Rvcg::vcgImport(file, silent = TRUE)
+      if (!isa(mesh, what = "mesh3d")) stop("failed to convert an imported file to a 'mesh3d' object")
       Vector <- c(filenames[i], foreach::foreach(i = 1:length(functions), .combine = "c") %dopar% functions[[i]](mesh))
       Result <- rbind(Result, Vector)
     }
-
     parallel::stopCluster(cluster)
-
   }
   # Not parallel
   else {
-
+    for (file in files){
+      mesh <- Rvcg::vcgImport(file, silent = TRUE)
+      if (!isa(mesh, what = "mesh3d")) stop("failed to convert an imported file to a 'mesh3d' object")
+      Vector <- vector()
+      for (fun in functions) {
+        FunResult <- fun(mesh)
+        Vector <- c(Vector, fun(mesh))
+      }
+      Result <- rbind(Result, Vector)
+    }
   }
 
-  # Rename columns
+  # Rename
   colnames(Result) <- c("id", names(functions))
-
-  # Rename id
   if (!is.null(filenames)){
-    print('test')
     Result[, 1] <- c(filenames)
   }
 
