@@ -13,7 +13,7 @@
 #' @import tis
 #' @import usethis
 #' @import openxlsx
-#' @importMethodsFrom foreach
+#' @import RcppArmadillo
 #' @importFrom foreach foreach
 #' @importFrom foreach %:%
 #' @importFrom foreach %dopar%
@@ -21,3 +21,6 @@
 #' @importFrom snow makeSOCKcluster
 #' @importFrom parallel detectCores
 #' @importFrom parallel stopCluster
+#' @useDynLib doolkit, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
+NULL

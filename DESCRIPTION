@@ -43,9 +43,14 @@ Imports:
     Morpho,
     openxlsx,
     parallel,
+    Rcpp,
+    RcppArmadillo,
     rgl,
     Rvcg,
     snow,
     sp,
     tis,
     usethis
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo

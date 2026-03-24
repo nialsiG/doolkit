@@ -19,11 +19,11 @@ Computes a range of dental topography variables for all triangles of a single me
 }
 \examples{
 ## Prepare mesh
-mesh_right <- doolkit::dkpongo$OES
+my_mesh <- doolkit::dkmodel$cusp
 ## Prepare functions
 Slope <- function(mesh) return(doolkit::slope(mesh))
 Rotation <- function(mesh) return(doolkit::orient(mesh))
 fun_list <- list("slope" = Slope, "rotation" = Rotation)
-## Batch tooth analysis
-tooth_topo_dataframe <- doolkit::batch.single(mesh_right, fun_list)
+## Single mesh batch analysis
+single_mesh_topography <- doolkit::batch.single(my_mesh, fun_list)
 }

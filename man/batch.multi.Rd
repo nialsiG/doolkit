@@ -25,8 +25,8 @@ Mss <- function(mesh) return(mean(doolkit::slope(mesh)))
 Rfi <- function(mesh) return(doolkit::rfi(mesh, method = "Boyer"))
 Opcr <- function(mesh) return(doolkit::opcr(mesh)$opcr)
 fun_list <- list("mss" = Mss, "rfi" = Rfi, "opcr" = Opcr)
-## Batch sample analysis
-sample_topo_dataframe <- doolkit::batch.multi(meshes_right, fun_list)
+## Multiple meshes batch analysis
+multi_mesh_topography <- doolkit::batch.multi(meshes_right, fun_list)
 }
 \seealso{
 \code{\link[Rvcg]{vcgImport}}
