@@ -11,8 +11,37 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// find_first_intersections_parallel
+Rcpp::IntegerVector find_first_intersections_parallel(arma::mat centroids, arma::mat normals, arma::mat verticesB, arma::imat facesB, double epsilon);
+RcppExport SEXP _doolkit_find_first_intersections_parallel(SEXP centroidsSEXP, SEXP normalsSEXP, SEXP verticesBSEXP, SEXP facesBSEXP, SEXP epsilonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type centroids(centroidsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type normals(normalsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type verticesB(verticesBSEXP);
+    Rcpp::traits::input_parameter< arma::imat >::type facesB(facesBSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_first_intersections_parallel(centroids, normals, verticesB, facesB, epsilon));
+    return rcpp_result_gen;
+END_RCPP
+}
+// find_closest_triangles_parallel
+Rcpp::IntegerVector find_closest_triangles_parallel(arma::mat nodesA, arma::imat facesA, arma::mat nodesB, arma::imat facesB);
+RcppExport SEXP _doolkit_find_closest_triangles_parallel(SEXP nodesASEXP, SEXP facesASEXP, SEXP nodesBSEXP, SEXP facesBSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type nodesA(nodesASEXP);
+    Rcpp::traits::input_parameter< arma::imat >::type facesA(facesASEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type nodesB(nodesBSEXP);
+    Rcpp::traits::input_parameter< arma::imat >::type facesB(facesBSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_closest_triangles_parallel(nodesA, facesA, nodesB, facesB));
+    return rcpp_result_gen;
+END_RCPP
+}
 // find_closest_triangles
-IntegerVector find_closest_triangles(arma::mat nodesA, arma::imat facesA, arma::mat nodesB, arma::imat facesB);
+Rcpp::IntegerVector find_closest_triangles(arma::mat nodesA, arma::imat facesA, arma::mat nodesB, arma::imat facesB);
 RcppExport SEXP _doolkit_find_closest_triangles(SEXP nodesASEXP, SEXP facesASEXP, SEXP nodesBSEXP, SEXP facesBSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -27,6 +56,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_doolkit_find_first_intersections_parallel", (DL_FUNC) &_doolkit_find_first_intersections_parallel, 5},
+    {"_doolkit_find_closest_triangles_parallel", (DL_FUNC) &_doolkit_find_closest_triangles_parallel, 4},
     {"_doolkit_find_closest_triangles", (DL_FUNC) &_doolkit_find_closest_triangles, 4},
     {NULL, NULL, 0}
 };

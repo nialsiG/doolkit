@@ -4,14 +4,15 @@
 \alias{tridx}
 \title{tridx}
 \usage{
-tridx(oes, edj, ray = FALSE)
+tridx(oes, edj, method = "nearest", direction = -1, epsilon = 1e-07)
 }
 \arguments{
 \item{oes}{object of class mesh3d; should be the outer enamel surface}
 
 \item{edj}{object of class mesh3d; should be the enamel-dentine junction}
 
-\item{ray}{logical, if TRUE the search is along vertex normals (default is FALSE)}
+\item{method}{String indicating which method should be used to find triangle pairs.
+Default is 'nearest', which find the absolute nearest 'edj' triangle.}
 }
 \value{
 A data frame.
@@ -20,6 +21,6 @@ A data frame.
 Get the pairwise indexing of a 3D mesh relative to another.
 }
 \examples{
-tridx <- data.frame()
+result <- doolkit::tridx(oes = doolkit::dkmodel$cusp, edj = doolkit::dkmodel$flat, method = "nearest")
 
 }

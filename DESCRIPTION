@@ -1,6 +1,6 @@
 Package: doolkit
 Title: Exploration of Dental Surface Topography
-Version: 1.42.2
+Version: 1.45.1
 Authors@R: c(
     person(given = "Ghislain", family = "Thiery", role = c("aut", "cre"), email = "ghislain.thiery@ntymail.com"),
     person(given = "Franck", family = "Guy", role = c("aut"), email = "franck.guy@univ-poitiers.fr"),
@@ -29,7 +29,7 @@ Description: Tools for exploring the topography of 3d triangle meshes.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.2.0)
+Depends: R (>= 4.5.0)
 RoxygenNote: 7.3.2
 BugReports: https://github.com/nialsiG/doolkit/issues
 Imports: 
@@ -45,6 +45,7 @@ Imports:
     parallel,
     Rcpp,
     RcppArmadillo,
+    RcppParallel,
     rgl,
     Rvcg,
     snow,
@@ -53,4 +54,5 @@ Imports:
     usethis
 LinkingTo: 
     Rcpp,
-    RcppArmadillo
+    RcppArmadillo,
+    RcppParallel
