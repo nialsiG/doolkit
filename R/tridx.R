@@ -5,6 +5,10 @@
 #' @param edj object of class mesh3d; should be the enamel-dentine junction
 #' @param method String indicating which method should be used to find triangle pairs.
 #' Default is 'nearest', which find the absolute nearest 'edj' triangle.
+#' Alternative choices: 'normal' follows the normal to surface A, 'ortho' follows the Z-axis.
+#' @param direction Signed integer, indicates the direction for normals / orthogonal methods.
+#' Default is '-1' which indicates that mesh B is below mesh A.
+#' @param  epsilon Float corresponding to the error margin for intersections.
 #' @return A data frame.
 #' @examples
 #' result <- doolkit::tridx(oes = doolkit::dkmodel$cusp, edj = doolkit::dkmodel$flat, method = "nearest")

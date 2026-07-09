@@ -111,7 +111,8 @@ dkcrop <- function(mesh, y){
 #' @param cex.lab the magnification to be used for legend labels relative to the current setting of cex.
 #' @param cex.main the magnification to be used for main titles relative to the current setting of cex.
 #' @param cex.sub the magnification to be used for sub-titles relative to the current setting of cex.
-#' @param col a vector of colors for texturing the polygons according to y
+#' @param col a vector of colors for texturing the polygons according to y.
+#' 'col' can also be one of the following: 'arc', 'dne', 'elev', 'inclin', 'oedist', 'opc', 'opcr', 'orient', 'slope'.
 #' @param col.levels the number of color levels, default is the length of 'col'
 #' @param col.axis the color to be used for legend axis annotation. Defaults to "black".
 #' @param col.lab the color to be used for the legend labels. Defaults to "black".
@@ -344,6 +345,7 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 #' @description A function for drawing the cumulative profile of a variable, computing the area under the curve and
 #' the slope of the profile at the arithmetic mean of the variable.
 #' @param x a numeric vector
+#' @param as.percentage boolean, if true y-axis of the profile is in percentage (default)
 #' @param type a character string indicating the type of coordinates to use
 #' ("cartesian", "polar" etc.). Currently only "cartesian" is supported.
 #' @param xlab title of the x axis
@@ -372,16 +374,27 @@ dkmap <- function(mesh, y,  alpha = 1, alpha.above = TRUE, alpha.faces = NULL, a
 #' col = "#D55E00", linetype = "dotted")
 #'
 #' @export
-dkprofile <- function (x, type = 'cartesian', xlab = paste("cumulated frequency (%)"), ylab = '', main = '', col = "red", alpha = 1, size = 1, linetype = "solid") {
+dkprofile <- function (x, as.percentage = TRUE, type = 'cartesian', xlab = paste("cumulated frequency (%)"), ylab = '', main = '', col = "red", alpha = 1, size = NULL, linetype = "solid", linewidth = 1) {
+  if (!is.null(size)){
+    warning("Using 'size' aesthetic for lines was deprecated in doolkit 4.
+            Please use 'linewidth' instead.")
+  }
+  Sorted <- x
+  Sorted <- Sorted[order(Sorted)]
+
+  # percentage is used for Slope and AUC, as well as y-axis if as.percentage is true
   if (min(x) < 0) x <- x + (abs(min(x))) #for kurtometric profiles
   if (min(x) > 0) x <- x - min(x) #for profiles of variables that do not start from 0
-  Sorted <- x/(max(x)-min(x))*100
-  Sorted <- Sorted[order(Sorted)]
-  Cumulated <- c(1:length(Sorted))*100/length(Sorted)
+  Percentage <- x / (max(x) - min(x)) * 100
+  SortedPercentage <- Percentage[order(Percentage)]
+  if (as.percentage) Sorted <- SortedPercentage
+
+  Cumulated <- c(1:length(Sorted)) * 100 / length(Sorted)
   Df <- data.frame(Cumulated, Sorted)
+
   # ggplot of the profile:
   PPlot <- ggplot2::ggplot(Df, ggplot2::aes(x = Cumulated, y = Sorted)) +
-    ggplot2::geom_line(colour = col, size = size, alpha = alpha, linetype = linetype) +
+    ggplot2::geom_line(colour = col, linewidth = linewidth, alpha = alpha, linetype = linetype) +
     ggplot2::ggtitle(main) +
     ggplot2::xlab(xlab) +
     ggplot2::ylab(ylab)
@@ -393,18 +406,18 @@ dkprofile <- function (x, type = 'cartesian', xlab = paste("cumulated frequency 
     PPlot <- PPlot + ggplot2::coord_cartesian()
   }
   else {
-    print(paste("Warning: 'type' argument must be of type c('default','polar'); type set to 'default'"))
+    print(paste("Warning: 'type' argument must be of type c('cartesian','polar'); type set to 'cartesian'"))
     PPlot <- PPlot + ggplot2::coord_cartesian()
   }
   # profile slope:
-  Antecedent <- which.min(abs(Sorted - mean(Sorted)))
+  Antecedent <- which.min(abs(SortedPercentage - mean(SortedPercentage)))
   Slopes <- NULL
-  for (i in 1:round(length(x)/100, 0)) {
-    Slopes[i] <- (Sorted[Antecedent + i] - Sorted[Antecedent - i])/(Cumulated[Antecedent + i] - Cumulated[Antecedent - i])
+  for (i in 1:round(length(x) / 100, 0)) {
+    Slopes[i] <- (SortedPercentage[Antecedent + i] - SortedPercentage[Antecedent - i]) / (Cumulated[Antecedent + i] - Cumulated[Antecedent - i])
   }
   Slope <- round(mean(Slopes), 3)
   # area under curve:
-  AUC <- sum(tis::lintegrate(Cumulated, Sorted, xint = Cumulated))
+  AUC <- sum(tis::lintegrate(Cumulated, SortedPercentage, xint = Cumulated))
 
   return(list(auc = AUC, profile = PPlot, slope = Slope))
 }

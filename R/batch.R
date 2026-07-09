@@ -32,6 +32,52 @@ batch.single <- function(mesh, functions){
   # Rename columns and return data frame
   colnames(Result) <- c("index", names(functions))
   return(Result)
+  doolkit::dkpongo$OES
+  Morpho::meshDist(doolkit::dkpongo$OES, doolkit::dkpongo$EDJ)
+}
+
+# batch.paired
+#' @title batch.paired
+#' @description Computes a range of dental topography variables for paired meshes.
+#' @param meshA An object of class mesh3d; The mesh to which functions (ex. distance) are calculated.
+#' @param meshB An object of class mesh3d; The mesh from which functions (ex. distance) are calculated.
+#' @param functions A list of functions to apply; these functions should accept a 'mesh' argument and return as many values as the 'mesh' face count
+#' @param method String indicating which method should be used to find triangle pairs.
+#' @param direction Signed integer, indicates the direction for normals / orthogonal methods.
+#' Default is '-1' which indicates that mesh B is below mesh A.
+#' @param  epsilon Float corresponding to the error margin for intersections.
+#' @return A data frame.
+#' @examples
+#' ## Prepare meshes
+#' mesh_A <- doolkit::dkpongo$OES
+#' mesh_B <- doolkit::dkpongo$EDJ
+#' ## Prepare functions
+#' Distance <- function(mesh) return(Morpho::meshDist(mesh_A, mesh_B, plot = FALSE))
+#' SlopeDelta <- function(mesh) return(doolkit::slope(mesh_A) - doolkit::slope(mesh_B))
+#' fun_list <- list("distance" = Distance, "slope_delta" = SlopeDelta)
+#' ## Paired mesh batch analysis
+#' paired_mesh_topography <- doolkit::batch.paired(mesh_A, mesh_B, "nearest", fun_list)
+#' @export
+batch.paired <- function(meshA, meshB, functions, method){
+  # Perform various checks:
+  if (!isa(meshA, what = "mesh3d")) stop("meshA must be an object of class 'mesh3d'")
+  if (!isa(meshB, what = "mesh3d")) stop("meshB must be an object of class 'mesh3d'")
+  for (fun in functions){
+    if (!is.function(fun)) stop ("fun must be a valid method")
+  }
+  # Get tridX
+  Result <- doolkit::tridx(meshA, meshB, method = method)
+  NFaces <- length(Result[, 1])
+
+  # Main loop
+  for (fun in functions){
+    FunResult <- fun(meshA, mesh_B_paired)
+    if (length(FunResult) < NFaces) stop ("fun must return as many values as the 'meshA' face count")
+    Result <- cbind(Result, FunResult)
+  }
+  # Rename columns and return data frame
+  colnames(Result) <- c("mesh_A_index", "mesh_B_paired_index", names(functions))
+  return(Result)
 }
 
 
@@ -79,11 +125,21 @@ batch.multi <- function(files, functions, filenames = NULL, do.parallel = TRUE){
   if (do.parallel){
     cluster <- snow::makeSOCKcluster(parallel::detectCores() - 1)
     doSNOW::registerDoSNOW(cluster)
+    nfiles <- length(files)
+    file_count <- 0
     for (file in files){
       mesh <- Rvcg::vcgImport(file, silent = TRUE)
       if (!isa(mesh, what = "mesh3d")) stop("failed to convert an imported file to a 'mesh3d' object")
       Vector <- c(filenames[i], foreach::foreach(i = 1:length(functions), .combine = "c") %dopar% functions[[i]](mesh))
       Result <- rbind(Result, Vector)
+
+      # Check if a shiny progress function has been registered in the background
+      shiny_updater <- getOption("doolkit.progress_callback")
+      if (is.function(shiny_updater)) {
+        file_count <- file_count + 1
+        shiny_updater(amount = 1/nfiles, text = paste("Step", file_count, "of", nfiles))
+      }
+
     }
     parallel::stopCluster(cluster)
   }

@@ -6,18 +6,22 @@
 \usage{
 dkprofile(
   x,
+  as.percentage = TRUE,
   type = "cartesian",
   xlab = paste("cumulated frequency (\%)"),
   ylab = "",
   main = "",
   col = "red",
   alpha = 1,
-  size = 1,
-  linetype = "solid"
+  size = NULL,
+  linetype = "solid",
+  linewidth = 1
 )
 }
 \arguments{
 \item{x}{a numeric vector}
+
+\item{as.percentage}{boolean, if true y-axis of the profile is in percentage (default)}
 
 \item{type}{a character string indicating the type of coordinates to use
 ("cartesian", "polar" etc.). Currently only "cartesian" is supported.}

@@ -61,7 +61,8 @@ if FALSE their y value should be below \code{alpha.thresh}}
 
 \item{bg}{the color to be used for the background. Defaults to "white".}
 
-\item{col}{a vector of colors for texturing the polygons according to y}
+\item{col}{a vector of colors for texturing the polygons according to y.
+'col' can also be one of the following: 'arc', 'dne', 'elev', 'inclin', 'oedist', 'opc', 'opcr', 'orient', 'slope'.}
 
 \item{col.levels}{the number of color levels, default is the length of 'col'}
 

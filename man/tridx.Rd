@@ -12,7 +12,8 @@ tridx(oes, edj, method = "nearest", direction = -1, epsilon = 1e-07)
 \item{edj}{object of class mesh3d; should be the enamel-dentine junction}
 
 \item{method}{String indicating which method should be used to find triangle pairs.
-Default is 'nearest', which find the absolute nearest 'edj' triangle.}
+Default is 'nearest', which find the absolute nearest 'edj' triangle.
+Alternative choices: 'normal' follows the normal to surface A, 'ortho' follows the Z-axis.}
 }
 \value{
 A data frame.
