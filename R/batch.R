@@ -23,17 +23,25 @@ batch.single <- function(mesh, functions){
   # Prepare dataset
   NFaces <- Rvcg::nfaces(mesh)
   Result <- data.frame("index" = c(1:NFaces))
+
   # Main loop
+  nfun <- length(functions)
+  fun_count <- 0
   for (fun in functions){
     FunResult <- fun(mesh)
     if (length(FunResult) < NFaces) stop ("fun must return as many values as the 'mesh' face count")
     Result <- cbind(Result, FunResult)
+
+    # Check if a shiny progress function has been registered in the background
+    shiny_updater <- getOption("doolkit.progress_callback")
+    if (is.function(shiny_updater)) {
+      fun_count <- fun_count + 1
+      shiny_updater(amount = 1/nfun, text = paste("Step", fun_count, "of", nfun))
+    }
   }
   # Rename columns and return data frame
   colnames(Result) <- c("index", names(functions))
   return(Result)
-  doolkit::dkpongo$OES
-  Morpho::meshDist(doolkit::dkpongo$OES, doolkit::dkpongo$EDJ)
 }
 
 # batch.paired
@@ -43,6 +51,8 @@ batch.single <- function(mesh, functions){
 #' @param meshB An object of class mesh3d; The mesh from which functions (ex. distance) are calculated.
 #' @param functions A list of functions to apply; these functions should accept a 'mesh' argument and return as many values as the 'mesh' face count
 #' @param method String indicating which method should be used to find triangle pairs.
+#' Default is 'nearest', which find the absolute nearest 'edj' triangle.
+#' Alternative choices: 'normal' follows the normal to surface A, 'ortho' follows the Z-axis.
 #' @param direction Signed integer, indicates the direction for normals / orthogonal methods.
 #' Default is '-1' which indicates that mesh B is below mesh A.
 #' @param  epsilon Float corresponding to the error margin for intersections.
@@ -58,23 +68,43 @@ batch.single <- function(mesh, functions){
 #' ## Paired mesh batch analysis
 #' paired_mesh_topography <- doolkit::batch.paired(mesh_A, mesh_B, "nearest", fun_list)
 #' @export
-batch.paired <- function(meshA, meshB, functions, method){
+batch.paired <- function(meshA, meshB, functions, method = "nearest"){
   # Perform various checks:
   if (!isa(meshA, what = "mesh3d")) stop("meshA must be an object of class 'mesh3d'")
   if (!isa(meshB, what = "mesh3d")) stop("meshB must be an object of class 'mesh3d'")
   for (fun in functions){
     if (!is.function(fun)) stop ("fun must be a valid method")
   }
+  # Check if a shiny progress function has been registered in the background
+  shiny_updater <- getOption("doolkit.progress_callback")
+  nfun <- length(functions)
+  fun_count <- 0
+
   # Get tridX
   Result <- doolkit::tridx(meshA, meshB, method = method)
-  NFaces <- length(Result[, 1])
 
-  # Main loop
-  for (fun in functions){
-    FunResult <- fun(meshA, mesh_B_paired)
-    if (length(FunResult) < NFaces) stop ("fun must return as many values as the 'meshA' face count")
-    Result <- cbind(Result, FunResult)
+  if (is.function(shiny_updater)) {
+    fun_count <- fun_count + 1
+    shiny_updater(amount = 1/(nfun + 1), text = paste("Step", fun_count, "of", nfun + 1))
   }
+  # Main loop
+  ReorderedMeshB <- meshB
+  ReorderedMeshB$it <- meshB$it[, Result[, 2]]
+
+  if (!is.null(meshB$normals) && ncol(meshB$normals) == ncol(meshB$it)) {
+    ReorderedMeshB$normals <- meshB$normals[, Result[, 2]]
+  }
+
+  for (fun in functions){
+    FunResult <- fun(meshA, ReorderedMeshB)
+    Result <- cbind(Result, FunResult)
+
+    if (is.function(shiny_updater)) {
+      fun_count <- fun_count + 1
+      shiny_updater(amount = 1/(nfun + 1), text = paste("Step", fun_count, "of", nfun + 1))
+    }
+  }
+
   # Rename columns and return data frame
   colnames(Result) <- c("mesh_A_index", "mesh_B_paired_index", names(functions))
   return(Result)

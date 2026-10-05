@@ -28,6 +28,7 @@ export(rrate)
 export(shape.index)
 export(slope)
 export(tilt)
+export(tridist)
 export(tridx)
 exportClasses(polygon.network)
 import(MASS)
@@ -40,17 +41,25 @@ import(rgl)
 import(sp)
 import(tis)
 import(usethis)
-importFrom(Morpho,facenormals)
-importFrom(Morpho,meshDist)
+importFrom(Morpho,
+  facenormals,
+  meshDist
+)
 importFrom(Rcpp,sourceCpp)
 importFrom(concaveman,concaveman)
 importFrom(doSNOW,registerDoSNOW)
-importFrom(foreach,"%:%")
-importFrom(foreach,"%dopar%")
-importFrom(foreach,foreach)
-importFrom(igraph,components)
-importFrom(igraph,graph_from_edgelist)
-importFrom(parallel,detectCores)
-importFrom(parallel,stopCluster)
+importFrom(foreach,
+  "%:%",
+  "%dopar%",
+  foreach
+)
+importFrom(igraph,
+  components,
+  graph_from_edgelist
+)
+importFrom(parallel,
+  detectCores,
+  stopCluster
+)
 importFrom(snow,makeSOCKcluster)
 useDynLib(doolkit, .registration = TRUE)

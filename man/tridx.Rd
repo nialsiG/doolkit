@@ -14,6 +14,11 @@ tridx(oes, edj, method = "nearest", direction = -1, epsilon = 1e-07)
 \item{method}{String indicating which method should be used to find triangle pairs.
 Default is 'nearest', which find the absolute nearest 'edj' triangle.
 Alternative choices: 'normal' follows the normal to surface A, 'ortho' follows the Z-axis.}
+
+\item{direction}{Signed integer, indicates the direction for normals / orthogonal methods.
+Default is '-1' which indicates that mesh B is below mesh A.}
+
+\item{epsilon}{Float corresponding to the error margin for intersections.}
 }
 \value{
 A data frame.

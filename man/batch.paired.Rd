@@ -4,7 +4,7 @@
 \alias{batch.paired}
 \title{batch.paired}
 \usage{
-batch.paired(meshA, meshB, functions)
+batch.paired(meshA, meshB, functions, method = "nearest")
 }
 \arguments{
 \item{meshA}{An object of class mesh3d; The mesh to which functions (ex. distance) are calculated.}
@@ -12,6 +12,15 @@ batch.paired(meshA, meshB, functions)
 \item{meshB}{An object of class mesh3d; The mesh from which functions (ex. distance) are calculated.}
 
 \item{functions}{A list of functions to apply; these functions should accept a 'mesh' argument and return as many values as the 'mesh' face count}
+
+\item{method}{String indicating which method should be used to find triangle pairs.
+Default is 'nearest', which find the absolute nearest 'edj' triangle.
+Alternative choices: 'normal' follows the normal to surface A, 'ortho' follows the Z-axis.}
+
+\item{direction}{Signed integer, indicates the direction for normals / orthogonal methods.
+Default is '-1' which indicates that mesh B is below mesh A.}
+
+\item{epsilon}{Float corresponding to the error margin for intersections.}
 }
 \value{
 A data frame.
@@ -28,5 +37,5 @@ Distance <- function(mesh) return(Morpho::meshDist(mesh_A, mesh_B, plot = FALSE)
 SlopeDelta <- function(mesh) return(doolkit::slope(mesh_A) - doolkit::slope(mesh_B))
 fun_list <- list("distance" = Distance, "slope_delta" = SlopeDelta)
 ## Paired mesh batch analysis
-paired_mesh_topography <- doolkit::batch.paired(mesh_A, mesh_B, fun_list)
+paired_mesh_topography <- doolkit::batch.paired(mesh_A, mesh_B, "nearest", fun_list)
 }

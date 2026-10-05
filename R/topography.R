@@ -402,6 +402,32 @@ oedist <- function(oes, edj, ray = FALSE){
   return(TrDist)
 }
 
+
+# tridist----
+#' @title Distance between two paired meshes
+#' @description Compute distance from an origin mesh to a target mesh with paired triangle indices.
+#' A mesh can be paired to another using the 'tridx' method.
+#' @param origin object of class mesh3d; should be the outer enamel surface
+#' @param target object of class mesh3d; should be the enamel-dentine junction
+#' @seealso \code{\link{tridx}}
+#' @examples
+#' ""
+#' @export
+tridist <- function(origin, target){
+  # Perform various checks:
+  if (!isa(origin, what = "mesh3d")) stop("oes must be an object of class 'mesh3d'")
+  if (!isa(target, what = "mesh3d")) stop("edj must be an object of class 'mesh3d'")
+  # Main job
+  # ...centroids
+  origin_centroids <- Rvcg::vcgBary(origin)
+  target_centroids <- Rvcg::vcgBary(target)
+  dist <- target_centroids - origin_centroids
+  dist_normalized <- sqrt((dist[, 1] ^ 2) + (dist[, 2] ^ 2) + (dist[, 3] ^ 2))
+
+  return(dist_normalized)
+}
+
+
 # opc----
 #' @title orientation patch count
 #' @description Count the number of orientation patches using \code{\link{poly.network}}.
